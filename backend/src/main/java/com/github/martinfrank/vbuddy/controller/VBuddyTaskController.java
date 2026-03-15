@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -26,6 +27,13 @@ public class VBuddyTaskController {
     @GetMapping
     public List<VBuddyTask> getTasks(@PathVariable Long buddyId) {
         return taskRepository.findByBuddyIdOrderByStartTimeAsc(buddyId);
+    }
+
+    @GetMapping("/timeline")
+    public List<VBuddyTask> getTimeline(@PathVariable Long buddyId) {
+        LocalDateTime from = LocalDateTime.now().minusHours(8);
+        LocalDateTime to = LocalDateTime.now().plusHours(16);
+        return taskRepository.findByBuddyIdAndStartTimeBetweenOrderByStartTimeAsc(buddyId, from, to);
     }
 
     @GetMapping("/current")
