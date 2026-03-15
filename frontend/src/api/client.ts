@@ -15,6 +15,7 @@ export interface Buddy {
   id: number;
   name: string;
   personality: string;
+  currentLocation: string;
   createdAt: string;
 }
 

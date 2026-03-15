@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { api, Need } from '../api/client'
+import { api, Buddy, Need } from '../api/client'
 import styles from './NeedsPage.module.css'
 
 const NEED_LABELS: Record<string, string> = {
@@ -13,16 +13,25 @@ const NEED_LABELS: Record<string, string> = {
 
 export default function NeedsPage() {
   const { buddyId } = useParams()
+  const [buddy, setBuddy] = useState<Buddy | null>(null)
   const [needs, setNeeds] = useState<Need[]>([])
 
   useEffect(() => {
     if (buddyId) {
-      api.getNeeds(Number(buddyId)).then(setNeeds)
+      const id = Number(buddyId)
+      api.getBuddy(id).then(setBuddy)
+      api.getNeeds(id).then(setNeeds)
     }
   }, [buddyId])
 
   return (
     <div className={styles.needs}>
+      {buddy && (
+        <div className={styles.location}>
+          <span className={styles.locationIcon}>&#128205;</span>
+          <span>{buddy.currentLocation}</span>
+        </div>
+      )}
       <h2>Bed&uuml;rfnisse</h2>
       <div className={styles.grid}>
         {needs.map((need) => {
