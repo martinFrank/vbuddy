@@ -1,0 +1,1 @@
+ALTER TABLE buddy ADD COLUMN current_location VARCHAR(200) NOT NULL DEFAULT 'Zu Hause';
