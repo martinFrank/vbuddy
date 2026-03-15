@@ -16,14 +16,24 @@ spring:
   flyway:
     enabled: true
 
-langchain4j:
-  open-ai:
-    chat-model:
-      base-url: ${OPENAI_BASE_URL:http://localhost:11434/v1}
-      api-key: ${OPENAI_API_KEY:ollama}
-      model-name: ${LLM_MODEL:llama3}
+vbuddy:
+  ai:
+    planning:
+      base-url: ${PLANNING_LLM_BASE_URL:http://localhost:11434/v1}
+      api-key: ${PLANNING_LLM_API_KEY:ollama}
+      model-name: ${PLANNING_LLM_MODEL:deepseek-r1:7b}
       temperature: 0.7
-    embedding-model:
-      base-url: ${OPENAI_BASE_URL:http://localhost:11434/v1}
-      api-key: ${OPENAI_API_KEY:ollama}
+    execution:
+      base-url: ${EXECUTION_LLM_BASE_URL:http://localhost:11434/v1}
+      api-key: ${EXECUTION_LLM_API_KEY:ollama}
+      model-name: ${EXECUTION_LLM_MODEL:qwen3:8b}
+      temperature: 0.7
+    chat:
+      base-url: ${CHAT_LLM_BASE_URL:http://localhost:11434/v1}
+      api-key: ${CHAT_LLM_API_KEY:ollama}
+      model-name: ${CHAT_LLM_MODEL:llama3}
+      temperature: 0.7
+    embedding:
+      base-url: ${EMBEDDING_BASE_URL:http://localhost:11434/v1}
+      api-key: ${EMBEDDING_API_KEY:ollama}
       model-name: ${EMBEDDING_MODEL:nomic-embed-text}

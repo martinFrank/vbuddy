@@ -46,6 +46,10 @@ VBuddy/
 └── CLAUDE.md
 ```
 
+## AI-Integration
+
+Details zur LLM- und AI-Integration sind in [AI_INTEGRATION.md](AI_INTEGRATION.md) dokumentiert.
+
 ## Backend
 
 - **Build-Tool**: Maven
@@ -108,3 +112,4 @@ Die gesamte Applikation läuft unter dem Pfad `/vbuddy` (nicht unter `/`).
 - DB-Migrationen in `backend/src/main/resources/db/migration/`
 - Frontend-Source in `frontend/src/`
 - Alle Services starten mit: `docker compose up --build`
+- Alle Zeiten, Datumsangaben und Timestamps sind ausschließlich in **UTC**
