@@ -38,8 +38,17 @@ public class BuddyLifecycleService {
     public void processBuddy(Long buddyId) {
         Buddy buddy = buddyService.findById(buddyId);
 
-        if (taskRepository.existsByBuddyIdAndStatus(buddyId, TaskStatus.IN_PROGRESS)) {
-            log.debug("Buddy '{}' arbeitet gerade an einem Task — nichts zu tun", buddy.getName());
+        Optional<VBuddyTask> activeTask = taskRepository.findFirstByBuddyIdAndStatusOrderByStartTimeAsc(
+                buddyId, TaskStatus.IN_PROGRESS);
+
+        if (activeTask.isPresent()) {
+            VBuddyTask task = activeTask.get();
+            if (!executionAgentService.isTaskFinished(task)) {
+                log.debug("Buddy '{}' arbeitet noch an Task '{}' — warte auf Abschluss", buddy.getName(), task.getTitle());
+                return;
+            }
+            log.info("Task '{}' von Buddy '{}' ist zeitlich abgelaufen — wird abgeschlossen", task.getTitle(), buddy.getName());
+            executionAgentService.completeTask(task.getId());
             return;
         }
 
@@ -48,7 +57,7 @@ public class BuddyLifecycleService {
 
         if (nextTask.isPresent()) {
             log.info("Buddy '{}' startet nächsten Task: '{}'", buddy.getName(), nextTask.get().getTitle());
-            executionAgentService.executeTask(nextTask.get().getId());
+            executionAgentService.startTask(nextTask.get().getId());
             return;
         }
 
@@ -58,7 +67,7 @@ public class BuddyLifecycleService {
         if (!newTasks.isEmpty()) {
             log.info("Buddy '{}' hat {} neue Tasks erhalten — starte ersten Task: '{}'",
                     buddy.getName(), newTasks.size(), newTasks.getFirst().getTitle());
-            executionAgentService.executeTask(newTasks.getFirst().getId());
+            executionAgentService.startTask(newTasks.getFirst().getId());
         }
     }
 }

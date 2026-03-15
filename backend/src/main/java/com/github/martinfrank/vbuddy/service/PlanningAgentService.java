@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,13 @@ import java.util.stream.Collectors;
 public class PlanningAgentService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter FLEXIBLE_PARSER = new DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            .optionalStart().appendLiteral('T').optionalEnd()
+            .optionalStart().appendLiteral(' ').optionalEnd()
+            .append(DateTimeFormatter.ofPattern("HH:mm"))
+            .optionalStart().appendPattern(":ss").optionalEnd()
+            .toFormatter();
 
     private final PlanningAiService planningAiService;
     private final BuddyService buddyService;
@@ -52,13 +61,24 @@ public class PlanningAgentService {
 
         log.info("Planungs-Agent startet für Buddy '{}' (ID: {})", buddy.getName(), buddyId);
 
-        PlannedTasks planned = planningAiService.planTasks(
-                buddy.getPersonality(),
-                buddy.getCurrentLocation(),
-                currentTime,
-                needsText,
-                recentTasksText
-        );
+        PlannedTasks planned;
+        try {
+            planned = planningAiService.planTasks(
+                    buddy.getPersonality(),
+                    buddy.getCurrentLocation(),
+                    currentTime,
+                    needsText,
+                    recentTasksText
+            );
+        } catch (Exception e) {
+            log.warn("Planungs-Agent konnte keine Tasks parsen für Buddy '{}': {}", buddy.getName(), e.getMessage());
+            return Collections.emptyList();
+        }
+
+        if (planned == null || planned.tasks() == null || planned.tasks().isEmpty()) {
+            log.warn("Planungs-Agent hat keine Tasks zurückgeliefert für Buddy '{}'", buddy.getName());
+            return Collections.emptyList();
+        }
 
         List<VBuddyTask> savedTasks = planned.tasks().stream()
                 .map(pt -> toEntity(pt, buddy))
@@ -78,7 +98,7 @@ public class PlanningAgentService {
         task.setTitle(planned.title());
         task.setDescription(planned.description());
         task.setLocation(planned.location());
-        task.setStartTime(LocalDateTime.parse(planned.startTime(), FORMATTER));
+        task.setStartTime(LocalDateTime.parse(planned.startTime().trim(), FLEXIBLE_PARSER));
         task.setDurationMinutes(planned.durationMinutes());
         task.setStatus(TaskStatus.PLANNED);
         return task;

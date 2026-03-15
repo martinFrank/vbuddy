@@ -51,6 +51,17 @@ export interface Activity {
   status: string;
 }
 
+export interface VBuddyTask {
+  id: number;
+  title: string;
+  description: string;
+  location: string;
+  startTime: string;
+  durationMinutes: number;
+  status: string;
+  createdAt: string;
+}
+
 export interface AiDecisionLog {
   id: number;
   context: string;
@@ -81,4 +92,6 @@ export const api = {
     request<DailyPlan>(`/buddies/${buddyId}/daily-plans/today`),
   getAiDecisionLogs: (buddyId: number) =>
     request<AiDecisionLog[]>(`/buddies/${buddyId}/ai-decision-log`),
+  getCurrentTask: (buddyId: number) =>
+    request<VBuddyTask>(`/buddies/${buddyId}/tasks/current`),
 };

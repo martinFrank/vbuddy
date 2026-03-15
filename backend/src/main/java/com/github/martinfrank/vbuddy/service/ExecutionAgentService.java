@@ -29,12 +29,40 @@ public class ExecutionAgentService {
     private final AiDecisionLogRepository aiDecisionLogRepository;
 
     @Transactional
-    public VBuddyTask executeTask(Long taskId) {
+    public VBuddyTask startTask(Long taskId) {
         VBuddyTask task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
 
         if (task.getStatus() != TaskStatus.PLANNED) {
             throw new RuntimeException("Task is not in PLANNED status: " + taskId);
+        }
+
+        Buddy buddy = buddyService.findById(task.getBuddy().getId());
+
+        log.info("Buddy '{}' beginnt Task '{}' (Dauer: {} min, Ort: {})",
+                buddy.getName(), task.getTitle(), task.getDurationMinutes(), task.getLocation());
+
+        task.setStatus(TaskStatus.IN_PROGRESS);
+        task.setStartTime(LocalDateTime.now());
+        taskRepository.save(task);
+
+        updateLocation(buddy, task.getLocation());
+
+        return task;
+    }
+
+    public boolean isTaskFinished(VBuddyTask task) {
+        LocalDateTime endTime = task.getStartTime().plusMinutes(task.getDurationMinutes());
+        return LocalDateTime.now().isAfter(endTime);
+    }
+
+    @Transactional
+    public VBuddyTask completeTask(Long taskId) {
+        VBuddyTask task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
+
+        if (task.getStatus() != TaskStatus.IN_PROGRESS) {
+            throw new RuntimeException("Task is not IN_PROGRESS: " + taskId);
         }
 
         Buddy buddy = buddyService.findById(task.getBuddy().getId());
@@ -44,10 +72,8 @@ public class ExecutionAgentService {
                 .map(n -> String.format("- %s: %.0f/%.0f", n.getNeedType(), n.getCurrentValue(), n.getMaxValue()))
                 .collect(Collectors.joining("\n"));
 
-        log.info("Ausführungs-Agent startet Task '{}' für Buddy '{}'", task.getTitle(), buddy.getName());
-
-        task.setStatus(TaskStatus.IN_PROGRESS);
-        taskRepository.save(task);
+        log.info("Ausführungs-Agent verarbeitet abgeschlossenen Task '{}' für Buddy '{}'",
+                task.getTitle(), buddy.getName());
 
         TaskExecutionResult result = executionAiService.executeTask(
                 buddy.getPersonality(),
@@ -60,16 +86,21 @@ public class ExecutionAgentService {
 
         saveBlogPost(buddy, task, result);
         adjustNeeds(needs, result.needAdjustments());
-        updateLocation(buddy, task.getLocation());
 
         task.setStatus(TaskStatus.COMPLETED);
         taskRepository.save(task);
 
         logDecision(buddy, task, result);
 
-        log.info("Ausführungs-Agent hat Task '{}' für Buddy '{}' abgeschlossen", task.getTitle(), buddy.getName());
+        log.info("Task '{}' für Buddy '{}' abgeschlossen", task.getTitle(), buddy.getName());
 
         return task;
+    }
+
+    @Transactional
+    public VBuddyTask executeTask(Long taskId) {
+        startTask(taskId);
+        return completeTask(taskId);
     }
 
     @Transactional

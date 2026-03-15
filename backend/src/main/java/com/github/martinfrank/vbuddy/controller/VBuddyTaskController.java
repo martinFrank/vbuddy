@@ -6,7 +6,9 @@ import com.github.martinfrank.vbuddy.service.BuddyLifecycleService;
 import com.github.martinfrank.vbuddy.service.ExecutionAgentService;
 import com.github.martinfrank.vbuddy.service.PlanningAgentService;
 import lombok.RequiredArgsConstructor;
+import com.github.martinfrank.vbuddy.model.TaskStatus;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,13 @@ public class VBuddyTaskController {
     @GetMapping
     public List<VBuddyTask> getTasks(@PathVariable Long buddyId) {
         return taskRepository.findByBuddyIdOrderByStartTimeAsc(buddyId);
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<VBuddyTask> getCurrentTask(@PathVariable Long buddyId) {
+        return taskRepository.findFirstByBuddyIdAndStatusOrderByStartTimeAsc(buddyId, TaskStatus.IN_PROGRESS)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/plan")

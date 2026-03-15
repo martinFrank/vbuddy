@@ -6,7 +6,7 @@
   padding: 1rem;
   border-radius: 8px;
   border: 1px solid #ddd;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   max-width: 500px;
   font-size: 1.1rem;
   font-weight: 600;
@@ -14,6 +14,76 @@
 
 .locationIcon {
   font-size: 1.3rem;
+}
+
+.currentTask {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid #27ae60;
+  border-left: 4px solid #27ae60;
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+}
+
+.taskHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.taskPulse {
+  color: #27ae60;
+  font-size: 0.75rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.taskLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #27ae60;
+}
+
+.currentTask h3 {
+  margin-bottom: 0.25rem;
+}
+
+.taskDescription {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.taskMeta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.taskRemaining {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.noTask {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  color: #888;
+  font-style: italic;
 }
 
 .needs h2 {
