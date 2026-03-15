@@ -10,13 +10,13 @@ Ein VBuddy ist ein virtueller Freund mit eigener Persönlichkeit. Er hat:
 
 - **Vorlieben und Bedürfnisse** — z.B. Hunger, Langeweile, Wissensdurst, Bewegungsdrang, soziale Interaktion. Diese Bedürfnisse verändern sich über die Zeit und werden durch Tätigkeiten gestillt.
 - **Einen eigenen Tagesplan** — Der VBuddy plant seinen Tag selbstständig mithilfe eines LLMs. Der Tagesplan berücksichtigt seine aktuellen Bedürfnisse und Vorlieben und ist in sich konsistent (z.B. kein Mittagessen direkt nach dem Frühstück, logische Übergänge zwischen Aktivitäten).
-- **Blogartikel** — Zu seinen geplanten Tätigkeiten erstellt der VBuddy Blogartikel (ebenfalls LLM-generiert), in denen er über seine Erlebnisse und Gedanken schreibt.
+- **Blogartikel** — Zu seinen geplanten Tätigkeiten erstellt der VBuddy Blogartikel (LLM-generiert) und veröffentlicht diese über **Browser Use** auf dem externen Blog `https://elitegames.v6.rocks/vbuddy-blog/`.
 
 ### Kernfunktionen
 
 1. **Chat** — Der Nutzer kann mit dem VBuddy in Echtzeit chatten. Der VBuddy antwortet kontextbezogen, basierend auf seiner Persönlichkeit, seinen aktuellen Aktivitäten, seinen Tagesplan und seinen Bedürfnissen. Die Nutzereingaben können seine Bedürfnisse und Pläne beeinflussen.
 2. **Tagesplanung** — Der VBuddy generiert täglich einen konsistenten Tagesablauf. Tätigkeiten beeinflussen seine Bedürfnisse (z.B. Essen stillt Hunger, Sport stillt Bewegungsdrang).
-3. **Blog** — Der VBuddy verfasst Blogartikel zu seinen Aktivitäten, die der Nutzer lesen kann.
+3. **Blog** — Der VBuddy verfasst Blogartikel zu seinen Aktivitäten und veröffentlicht diese auf einem echten Blog unter `https://elitegames.v6.rocks/vbuddy-blog/`. Dafür nutzt der VBuddy das AI-Tool **Browser Use**, um den Blog-Editor im Browser zu bedienen und Beiträge zu erstellen. Der Blog ist **nicht** Teil der VBuddy-GUI — er existiert ausschließlich als externe Website.
 4. **Bedürfnissystem** — Bedürfnisse steigen über Zeit an und werden durch passende Aktivitäten reduziert. Das beeinflusst Stimmung und Tagesplanung.
 4. **AI-Decision-Log** — Alle Überlegungen und Entscheidungen des VBuddy werden protokolliert.
 
