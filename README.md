@@ -47,8 +47,8 @@ Die Applikation läuft unter dem Base Path `/vbuddy`.
 
 Umgebungsvariablen werden über eine `.env`-Datei oder direkt in `docker-compose.yml` gesetzt:
 
-| Variable         | Beschreibung                        |
-|------------------|-------------------------------------|
+| Variable         | Beschreibung                          |
+|------------------|---------------------------------------|
 | `OPENAI_API_KEY` | API-Key für LLM und Embedding-Modelle |
 
 ## Lizenz
