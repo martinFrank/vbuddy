@@ -94,4 +94,6 @@ export const api = {
     request<AiDecisionLog[]>(`/buddies/${buddyId}/ai-decision-log`),
   getCurrentTask: (buddyId: number) =>
     request<VBuddyTask>(`/buddies/${buddyId}/tasks/current`),
+  getTimeline: (buddyId: number) =>
+    request<VBuddyTask[]>(`/buddies/${buddyId}/tasks/timeline`),
 };
