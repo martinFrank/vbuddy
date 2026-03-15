@@ -18,6 +18,9 @@ export default function Layout() {
         <NavLink to={`${base}/needs`} className={({ isActive }) => isActive ? styles.active : ''}>
           Bed&uuml;rfnisse
         </NavLink>
+        <NavLink to={`${base}/ai-log`} className={({ isActive }) => isActive ? styles.active : ''}>
+          AI-Entscheidungen
+        </NavLink>
       </nav>
       <main className={styles.main}>
         <Outlet />

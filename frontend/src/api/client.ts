@@ -50,6 +50,14 @@ export interface Activity {
   status: string;
 }
 
+export interface AiDecisionLog {
+  id: number;
+  context: string;
+  decision: string;
+  reasoning: string | null;
+  createdAt: string;
+}
+
 export const api = {
   getBuddies: () => request<Buddy[]>('/buddies'),
   createBuddy: (name: string, personality: string) =>
@@ -70,4 +78,6 @@ export const api = {
     request<DailyPlan[]>(`/buddies/${buddyId}/daily-plans`),
   getTodayPlan: (buddyId: number) =>
     request<DailyPlan>(`/buddies/${buddyId}/daily-plans/today`),
+  getAiDecisionLogs: (buddyId: number) =>
+    request<AiDecisionLog[]>(`/buddies/${buddyId}/ai-decision-log`),
 };
