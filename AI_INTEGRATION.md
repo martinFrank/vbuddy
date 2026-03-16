@@ -17,7 +17,7 @@ Drei separate LLMs werden für unterschiedliche Aufgaben eingesetzt:
 | Planung    | `deepseek-r1:7b`  | 0.7        | Logisches Reasoning für Aktivitätsplanung   |
 | Ausführung | `qwen3:8b`        | 0.7        | Kreativität für Blog-Erstellung + Reasoning |
 | Chat       | `llama3.1:8b`     | 0.7        | Natürliche Konversation                     |
-| Embedding  | `nomic-embed-text` | —         | RAG/Embedding (noch nicht aktiv integriert) |
+| Embedding  | `nomic-embed-text` | —         | RAG/Embedding (768 Dimensionen, pgvector)   |
 
 Konfiguration in `application.yml` unter `vbuddy.ai.planning`, `vbuddy.ai.execution`, `vbuddy.ai.chat` und `vbuddy.ai.embedding`.
 
@@ -28,7 +28,7 @@ Die Tätigkeiten des VBuddy werden durch drei spezialisierte Agenten gesteuert. 
 ### Planungs-Agent (`PlanningAiService`)
 
 - **Aufgabe**: Plant die nächsten 3-5 Aktivitäten des VBuddy
-- **Input**: Persönlichkeit, aktueller Ort, aktuelle Uhrzeit, Bedürfnisse (0-100), zuletzt erledigte Aktivitäten (letzte 10)
+- **Input**: Persönlichkeit, aktueller Ort, aktuelle Uhrzeit, Bedürfnisse (0-100), zuletzt erledigte Aktivitäten (letzte 10), Websuche-Ergebnisse, historischer Kontext (RAG)
 - **Output**: Strukturiertes `PlannedTasks`-Objekt (Liste von `PlannedTask` + Reasoning)
 - **Auslösung**: Manuell via `POST /api/buddies/{buddyId}/tasks/plan` oder automatisch durch den Lifecycle-Service, wenn keine aktiven/geplanten Tasks vorhanden sind
 - **System-Prompt**: Regeln für realistische, konsistente Planung — keine Zeitüberlappungen, Berücksichtigung von Bedürfnissen und Persönlichkeit, Vermeidung von Wiederholungen
@@ -46,6 +46,8 @@ Plane die nächsten Aktivitäten für den VBuddy.
 {{recentTasks}}
 **Lokale Veranstaltungen und Aktivitäten (Websuche):**
 {{localActivities}}
+**Historischer Kontext (Hintergrundgeschichte und vergangene Erlebnisse):**
+{{historicalContext}}
 ```
 
 **Output-Struktur** (`PlannedTask`):
@@ -103,6 +105,7 @@ Plane die nächsten Aktivitäten für den VBuddy.
 
 Der System-Prompt wird dynamisch in `ChatService.buildSystemPrompt()` zusammengebaut und enthält:
 - Name und Persönlichkeit des VBuddy
+- Relevanter Hintergrund und Erfahrungen (RAG — semantische Suche mit der User-Nachricht, max. 5 Ergebnisse)
 - Aktueller Aufenthaltsort
 - Aktuelle Bedürfnisse (gerundete Werte mit Max-Wert)
 - Aktive Aktivität (falls vorhanden) mit Details
@@ -121,7 +124,7 @@ Der System-Prompt wird dynamisch in `ChatService.buildSystemPrompt()` zusammenge
 
 ### RAG im Chat
 
-RAG ist im Chat aktuell **nicht aktiv integriert**. Die pgvector-Infrastruktur ist vorhanden, wird aber noch nicht genutzt.
+RAG ist im Chat aktiv integriert. Die User-Nachricht wird als Suchquery an den `EmbeddingService` übergeben (max. 5 Ergebnisse, MinScore 0.5). Gefundene Segmente (Background-Narrativ und abgeschlossene Tasks) werden als "Relevanter Hintergrund und Erfahrungen" in den System-Prompt eingefügt — zwischen Persönlichkeit und Aufenthaltsort.
 
 ## Tagesplan-Generierung
 
@@ -132,12 +135,13 @@ RAG ist im Chat aktuell **nicht aktiv integriert**. Die pgvector-Infrastruktur i
 
 1. Buddy, Bedürfnisse und kürzlich erledigte Tasks (letzte 10) werden geladen
 2. Websuche via SearXNG nach lokalen Aktivitäten/Veranstaltungen
-3. Bedürfnisse werden als String formatiert (`needType: currentValue/maxValue`)
-4. `PlanningAiService.planTasks()` wird mit allen Inputs aufgerufen
-5. Rückgabe: strukturiertes `PlannedTasks`-Objekt
-6. **Enrichment-Schritt**: Jeder `PlannedTask` wird einzeln durch `EnrichmentAiService.enrichTask()` geschickt — mit Persönlichkeit, Planungs-Reasoning und Websuche-Ergebnissen als Kontext. Bei Fehler wird die Original-Beschreibung beibehalten.
-7. Angereicherte `PlannedTask`-Records werden in `VBuddyTask`-Entities konvertiert (Status: PLANNED)
-8. AI-Decision-Log-Eintrag wird erstellt (Kontext, Entscheidung, Reasoning)
+3. RAG-Abfrage: Persönlichkeit + Bedürfnisse als Query an `EmbeddingService` (max. 10 Ergebnisse) → historischer Kontext
+4. Bedürfnisse werden als String formatiert (`needType: currentValue/maxValue`)
+5. `PlanningAiService.planTasks()` wird mit allen Inputs inkl. `historicalContext` aufgerufen
+6. Rückgabe: strukturiertes `PlannedTasks`-Objekt
+7. **Enrichment-Schritt**: Jeder `PlannedTask` wird einzeln durch `EnrichmentAiService.enrichTask()` geschickt — mit Persönlichkeit, Planungs-Reasoning und Websuche-Ergebnissen als Kontext. Bei Fehler wird die Original-Beschreibung beibehalten.
+8. Angereicherte `PlannedTask`-Records werden in `VBuddyTask`-Entities konvertiert (Status: PLANNED)
+9. AI-Decision-Log-Eintrag wird erstellt (Kontext, Entscheidung, Reasoning)
 
 ### Zeitraster
 
@@ -198,9 +202,28 @@ RAG ist im Chat aktuell **nicht aktiv integriert**. Die pgvector-Infrastruktur i
 ## RAG (Retrieval Augmented Generation)
 
 - **Embedding-Store**: pgvector (PostgreSQL Extension, automatisch aktiviert)
-- **Embedding-Modell**: `nomic-embed-text` (Ollama)
+- **Embedding-Modell**: `nomic-embed-text` (Ollama, 768 Dimensionen)
 - **Abhängigkeit**: `langchain4j-pgvector` (v0.36.2)
-- **Status**: Infrastruktur vorhanden, aber **noch nicht aktiv in die LLM-Aufrufe integriert**
+- **Tabelle**: `vbuddy_embeddings` (automatisch erstellt via `createTable(true)`)
+- **Service**: `EmbeddingService.java`
+- **MinScore**: 0.5
+
+### Embedding-Erzeugung
+
+- **Background**: Nach erfolgreicher Generierung des narrativen Texts in `BackgroundAgentService` wird dieser als Segment embedded (Metadata: `buddy_id`, `type=background`)
+- **Abgeschlossene Tasks**: Nach Task-Completion in `ExecutionAgentService` wird der Task als Segment embedded (Metadata: `buddy_id`, `type=task`, `task_id`)
+- Beide Aufrufe sind in try/catch gewrapped — Embedding-Fehler unterbrechen nicht den Hauptprozess
+
+### Embedding-Retrieval
+
+- **Chat**: User-Nachricht als Query, max. 5 Ergebnisse → im System-Prompt als "Relevanter Hintergrund und Erfahrungen"
+- **Planung**: Persönlichkeit + Bedürfnisse als Query, max. 10 Ergebnisse → als `historicalContext` im User-Prompt
+
+### Backfill
+
+- **Service**: `EmbeddingBackfillService.java`
+- **Endpunkt**: `POST /api/admin/backfill-embeddings`
+- Embeddet alle bestehenden COMPLETED Backgrounds und COMPLETED Tasks nachträglich
 
 ## AI-Decision-Log
 
