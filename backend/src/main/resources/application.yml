@@ -37,3 +37,8 @@ vbuddy:
       base-url: ${EMBEDDING_BASE_URL:http://localhost:11434/v1}
       api-key: ${EMBEDDING_API_KEY:ollama}
       model-name: ${EMBEDDING_MODEL:nomic-embed-text}
+  searxng:
+    base-url: ${SEARXNG_BASE_URL:http://localhost:8888}
+    max-results: 5
+    language: de
+    enabled: true

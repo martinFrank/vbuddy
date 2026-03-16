@@ -15,6 +15,14 @@ services:
       timeout: 5s
       retries: 5
 
+  searxng:
+    image: searxng/searxng:latest
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    restart: unless-stopped
+
   backend:
     build: ./backend
     ports:
@@ -23,11 +31,14 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/vbuddy
       SPRING_DATASOURCE_USERNAME: vbuddy
       SPRING_DATASOURCE_PASSWORD: vbuddy
+      SEARXNG_BASE_URL: http://searxng:8080
     env_file:
       - .env
     depends_on:
       postgres:
         condition: service_healthy
+      searxng:
+        condition: service_started
 
   frontend:
     build: ./frontend

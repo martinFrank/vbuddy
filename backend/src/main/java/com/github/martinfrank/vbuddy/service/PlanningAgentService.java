@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -36,6 +37,7 @@ public class PlanningAgentService {
     private final BuddyService buddyService;
     private final VBuddyTaskRepository taskRepository;
     private final AiDecisionLogRepository aiDecisionLogRepository;
+    private final SearxngSearchService searxngSearchService;
 
     @Transactional
     public List<VBuddyTask> planTasks(Long buddyId) {
@@ -59,6 +61,10 @@ public class PlanningAgentService {
 
         String currentTime = LocalDateTime.now().format(FORMATTER);
 
+        List<SearchResult> searchResults = searxngSearchService.searchLocalActivities(
+                buddy.getCurrentLocation(), LocalDate.now());
+        String localActivitiesText = searxngSearchService.formatResultsAsText(searchResults);
+
         log.info("Planungs-Agent startet für Buddy '{}' (ID: {})", buddy.getName(), buddyId);
 
         PlannedTasks planned;
@@ -68,7 +74,8 @@ public class PlanningAgentService {
                     buddy.getCurrentLocation(),
                     currentTime,
                     needsText,
-                    recentTasksText
+                    recentTasksText,
+                    localActivitiesText
             );
         } catch (Exception e) {
             log.warn("Planungs-Agent konnte keine Tasks parsen für Buddy '{}': {}", buddy.getName(), e.getMessage());
@@ -111,7 +118,8 @@ public class PlanningAgentService {
 
         AiDecisionLog logEntry = new AiDecisionLog();
         logEntry.setBuddy(buddy);
-        logEntry.setContext("Tagesplanung | Ort: " + buddy.getCurrentLocation() + " | Bedürfnisse:\n" + needsText);
+        logEntry.setContext("Tagesplanung | Ort: " + buddy.getCurrentLocation() + " | Bedürfnisse:\n" + needsText
+                + "\n| Websuche-Ergebnisse verfügbar: ja");
         logEntry.setDecision(decision);
         logEntry.setReasoning(planned.reasoning());
         aiDecisionLogRepository.save(logEntry);
