@@ -1,12 +1,19 @@
 package com.github.martinfrank.vbuddy.ai;
 
+import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class AiConfig {
@@ -85,6 +92,28 @@ public class AiConfig {
     public BackgroundEnrichmentAiService backgroundEnrichmentAiService(ChatLanguageModel executionChatModel) {
         return AiServices.builder(BackgroundEnrichmentAiService.class)
                 .chatLanguageModel(executionChatModel)
+                .build();
+    }
+
+    @Bean
+    public EmbeddingModel embeddingModel(
+            @Value("${vbuddy.ai.embedding.base-url}") String baseUrl,
+            @Value("${vbuddy.ai.embedding.api-key}") String apiKey,
+            @Value("${vbuddy.ai.embedding.model-name}") String modelName) {
+        return OpenAiEmbeddingModel.builder()
+                .baseUrl(baseUrl)
+                .apiKey(apiKey)
+                .modelName(modelName)
+                .build();
+    }
+
+    @Bean
+    public EmbeddingStore<TextSegment> embeddingStore(DataSource dataSource) {
+        return PgVectorEmbeddingStore.datasourceBuilder()
+                .datasource(dataSource)
+                .table("vbuddy_embeddings")
+                .dimension(768)
+                .createTable(true)
                 .build();
     }
 

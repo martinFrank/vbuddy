@@ -33,6 +33,7 @@ public class ChatService {
     private final BuddyService buddyService;
     private final VBuddyTaskRepository taskRepository;
     private final ChatLanguageModel chatChatModel;
+    private final EmbeddingService embeddingService;
 
     public List<ChatMessage> getHistory(Long buddyId) {
         return chatMessageRepository.findByBuddyIdOrderByCreatedAtAsc(buddyId);
@@ -60,7 +61,7 @@ public class ChatService {
     }
 
     private String generateResponse(Buddy buddy, String userMessage) {
-        String systemPrompt = buildSystemPrompt(buddy);
+        String systemPrompt = buildSystemPrompt(buddy, userMessage);
         List<dev.langchain4j.data.message.ChatMessage> messages = new ArrayList<>();
 
         messages.add(new SystemMessage(systemPrompt));
@@ -89,7 +90,7 @@ public class ChatService {
         }
     }
 
-    private String buildSystemPrompt(Buddy buddy) {
+    private String buildSystemPrompt(Buddy buddy, String userMessage) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Du bist ").append(buddy.getName()).append(", ein virtueller Buddy (VBuddy). ");
@@ -97,6 +98,19 @@ public class ChatService {
 
         sb.append("## Deine Persönlichkeit\n");
         sb.append(buddy.getPersonality()).append("\n\n");
+
+        try {
+            List<String> ragContext = embeddingService.retrieveRelevantContext(buddy.getId(), userMessage, 5);
+            if (!ragContext.isEmpty()) {
+                sb.append("## Relevanter Hintergrund und Erfahrungen\n");
+                for (String ctx : ragContext) {
+                    sb.append("- ").append(ctx).append("\n");
+                }
+                sb.append("\n");
+            }
+        } catch (Exception e) {
+            log.warn("Failed to retrieve RAG context for buddy {}: {}", buddy.getId(), e.getMessage());
+        }
 
         sb.append("## Dein aktueller Aufenthaltsort\n");
         sb.append(buddy.getCurrentLocation()).append("\n\n");

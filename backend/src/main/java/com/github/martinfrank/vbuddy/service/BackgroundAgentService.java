@@ -31,6 +31,7 @@ public class BackgroundAgentService {
     private final BackgroundPlanningAiService backgroundPlanningAiService;
     private final BackgroundEnrichmentAiService backgroundEnrichmentAiService;
     private final ObjectMapper objectMapper;
+    private final EmbeddingService embeddingService;
 
     @Async
     public void generateBackground(Long buddyId) {
@@ -88,6 +89,12 @@ public class BackgroundAgentService {
                     "Background-Enrichment für " + buddy.getName() + " | Strukturdaten vorhanden",
                     "Erzähltext erstellt (" + enriched.narrativeText().length() + " Zeichen)",
                     null);
+
+            try {
+                embeddingService.embedBackground(buddyId, enriched.narrativeText());
+            } catch (Exception embeddingEx) {
+                log.warn("Failed to embed background for buddy {}: {}", buddyId, embeddingEx.getMessage());
+            }
 
             log.info("Background generation completed for buddy {} ({})", buddyId, buddy.getName());
 
