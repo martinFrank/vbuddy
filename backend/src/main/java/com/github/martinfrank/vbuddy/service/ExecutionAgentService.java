@@ -27,6 +27,7 @@ public class ExecutionAgentService {
     private final BuddyRepository buddyRepository;
     private final BlogPostRepository blogPostRepository;
     private final AiDecisionLogRepository aiDecisionLogRepository;
+    private final EmbeddingService embeddingService;
 
     @Transactional
     public VBuddyTask startTask(Long taskId) {
@@ -89,6 +90,13 @@ public class ExecutionAgentService {
 
         task.setStatus(TaskStatus.COMPLETED);
         taskRepository.save(task);
+
+        try {
+            embeddingService.embedCompletedTask(buddy.getId(), task.getId(),
+                    task.getTitle(), task.getDescription(), task.getLocation());
+        } catch (Exception e) {
+            log.warn("Failed to embed completed task {} for buddy {}: {}", task.getId(), buddy.getId(), e.getMessage());
+        }
 
         logDecision(buddy, task, result);
 

@@ -6,7 +6,10 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(where mvn:*)",
-      "Bash(docker compose:*)"
+      "Bash(docker compose:*)",
+      "Bash(grep:*)",
+      "Bash(jar tf:*)",
+      "Bash(javap:*)"
     ]
   }
 }

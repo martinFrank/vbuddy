@@ -38,6 +38,9 @@ public interface PlanningAiService {
 
             **Lokale Veranstaltungen und Aktivitäten (Websuche):**
             {{localActivities}}
+
+            **Historischer Kontext (Hintergrundgeschichte und vergangene Erlebnisse):**
+            {{historicalContext}}
             """)
     PlannedTasks planTasks(
             @V("personality") String personality,
@@ -45,6 +48,7 @@ public interface PlanningAiService {
             @V("currentTime") String currentTime,
             @V("needs") String needs,
             @V("recentTasks") String recentTasks,
-            @V("localActivities") String localActivities
+            @V("localActivities") String localActivities,
+            @V("historicalContext") String historicalContext
     );
 }

@@ -40,6 +40,7 @@ public class PlanningAgentService {
     private final VBuddyTaskRepository taskRepository;
     private final AiDecisionLogRepository aiDecisionLogRepository;
     private final SearxngSearchService searxngSearchService;
+    private final EmbeddingService embeddingService;
 
     @Transactional
     public List<VBuddyTask> planTasks(Long buddyId) {
@@ -67,6 +68,18 @@ public class PlanningAgentService {
                 buddy.getCurrentLocation(), LocalDate.now());
         String localActivitiesText = searxngSearchService.formatResultsAsText(searchResults);
 
+        String historicalContext;
+        try {
+            String ragQuery = buddy.getPersonality() + " " + needsText;
+            List<String> ragResults = embeddingService.retrieveRelevantContext(buddyId, ragQuery, 10);
+            historicalContext = ragResults.isEmpty()
+                    ? "Keine historischen Daten verfügbar."
+                    : String.join("\n", ragResults);
+        } catch (Exception e) {
+            log.warn("Failed to retrieve RAG context for planning buddy {}: {}", buddyId, e.getMessage());
+            historicalContext = "Keine historischen Daten verfügbar.";
+        }
+
         log.info("Planungs-Agent startet für Buddy '{}' (ID: {})", buddy.getName(), buddyId);
 
         PlannedTasks planned;
@@ -77,7 +90,8 @@ public class PlanningAgentService {
                     currentTime,
                     needsText,
                     recentTasksText,
-                    localActivitiesText
+                    localActivitiesText,
+                    historicalContext
             );
         } catch (Exception e) {
             log.warn("Planungs-Agent konnte keine Tasks parsen für Buddy '{}': {}", buddy.getName(), e.getMessage());
