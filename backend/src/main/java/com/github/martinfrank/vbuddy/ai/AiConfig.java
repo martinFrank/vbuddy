@@ -68,6 +68,13 @@ public class AiConfig {
     }
 
     @Bean
+    public EnrichmentAiService enrichmentAiService(ChatLanguageModel executionChatModel) {
+        return AiServices.builder(EnrichmentAiService.class)
+                .chatLanguageModel(executionChatModel)
+                .build();
+    }
+
+    @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
