@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cd:*)",
       "Bash(curl:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(ls:*)"
     ]
   }
 }

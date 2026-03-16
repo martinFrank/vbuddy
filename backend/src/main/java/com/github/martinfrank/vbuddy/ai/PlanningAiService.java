@@ -18,6 +18,7 @@ public interface PlanningAiService {
             - Plane 3-5 Aktivitäten für die nächsten Stunden
             - Berücksichtige die Persönlichkeit des VBuddy
             - Berücksichtige die zuletzt erledigten Aktivitäten, um Wiederholungen zu vermeiden
+            - Nutze lokale Veranstaltungen und Aktivitäten aus der Websuche als Inspiration, wenn sie zum VBuddy passen
             - Verwende das Datumsformat 'yyyy-MM-dd HH:mm' für Startzeiten
             """)
     @UserMessage("""
@@ -34,12 +35,16 @@ public interface PlanningAiService {
 
             **Zuletzt erledigte Aktivitäten:**
             {{recentTasks}}
+
+            **Lokale Veranstaltungen und Aktivitäten (Websuche):**
+            {{localActivities}}
             """)
     PlannedTasks planTasks(
             @V("personality") String personality,
             @V("currentLocation") String currentLocation,
             @V("currentTime") String currentTime,
             @V("needs") String needs,
-            @V("recentTasks") String recentTasks
+            @V("recentTasks") String recentTasks,
+            @V("localActivities") String localActivities
     );
 }
