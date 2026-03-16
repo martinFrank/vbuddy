@@ -6,6 +6,8 @@ import com.github.martinfrank.vbuddy.repository.NeedRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ public class BuddyService {
 
     private final BuddyRepository buddyRepository;
     private final NeedRepository needRepository;
+    private final BackgroundAgentService backgroundAgentService;
 
     public List<Buddy> findAll() {
         return buddyRepository.findAll();
@@ -38,6 +41,14 @@ public class BuddyService {
             need.setNeedType(needType);
             needRepository.save(need);
         }
+
+        Long buddyId = buddy.getId();
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                backgroundAgentService.generateBackground(buddyId);
+            }
+        });
 
         return buddy;
     }

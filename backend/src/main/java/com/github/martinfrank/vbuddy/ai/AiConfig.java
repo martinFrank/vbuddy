@@ -75,6 +75,20 @@ public class AiConfig {
     }
 
     @Bean
+    public BackgroundPlanningAiService backgroundPlanningAiService(ChatLanguageModel planningChatModel) {
+        return AiServices.builder(BackgroundPlanningAiService.class)
+                .chatLanguageModel(planningChatModel)
+                .build();
+    }
+
+    @Bean
+    public BackgroundEnrichmentAiService backgroundEnrichmentAiService(ChatLanguageModel executionChatModel) {
+        return AiServices.builder(BackgroundEnrichmentAiService.class)
+                .chatLanguageModel(executionChatModel)
+                .build();
+    }
+
+    @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }

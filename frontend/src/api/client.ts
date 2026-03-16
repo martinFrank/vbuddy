@@ -70,6 +70,15 @@ export interface AiDecisionLog {
   createdAt: string;
 }
 
+export interface BuddyBackground {
+  id: number;
+  structuredData: string | null;
+  narrativeText: string | null;
+  status: 'PENDING' | 'GENERATING' | 'COMPLETED' | 'FAILED';
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const api = {
   getBuddies: () => request<Buddy[]>('/buddies'),
   createBuddy: (name: string, personality: string) =>
@@ -96,4 +105,8 @@ export const api = {
     request<VBuddyTask>(`/buddies/${buddyId}/tasks/current`),
   getTimeline: (buddyId: number) =>
     request<VBuddyTask[]>(`/buddies/${buddyId}/tasks/timeline`),
+  getBackground: (buddyId: number) =>
+    request<BuddyBackground>(`/buddies/${buddyId}/background`),
+  generateBackground: (buddyId: number) =>
+    request<void>(`/buddies/${buddyId}/background/generate`, { method: 'POST' }),
 };
