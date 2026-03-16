@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { api, Buddy, Need, VBuddyTask } from '../api/client'
+import { api, Buddy, BuddyBackground, Need, VBuddyTask } from '../api/client'
 import styles from './NeedsPage.module.css'
 
 const NEED_LABELS: Record<string, string> = {
@@ -16,6 +16,13 @@ export default function NeedsPage() {
   const [buddy, setBuddy] = useState<Buddy | null>(null)
   const [needs, setNeeds] = useState<Need[]>([])
   const [currentTask, setCurrentTask] = useState<VBuddyTask | null>(null)
+  const [background, setBackground] = useState<BuddyBackground | null>(null)
+  const [backgroundOpen, setBackgroundOpen] = useState(false)
+  const bgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const loadBackground = useCallback((id: number) => {
+    api.getBackground(id).then(setBackground).catch(() => setBackground(null))
+  }, [])
 
   useEffect(() => {
     if (!buddyId) return
@@ -28,9 +35,21 @@ export default function NeedsPage() {
     }
 
     load()
+    loadBackground(id)
     const interval = setInterval(load, 30000)
     return () => clearInterval(interval)
-  }, [buddyId])
+  }, [buddyId, loadBackground])
+
+  useEffect(() => {
+    if (!buddyId) return
+    const id = Number(buddyId)
+    if (bgIntervalRef.current) clearInterval(bgIntervalRef.current)
+
+    const isGenerating = background?.status === 'GENERATING' || background?.status === 'PENDING'
+    const pollMs = isGenerating ? 5000 : 30000
+    bgIntervalRef.current = setInterval(() => loadBackground(id), pollMs)
+    return () => { if (bgIntervalRef.current) clearInterval(bgIntervalRef.current) }
+  }, [buddyId, background?.status, loadBackground])
 
   const formatRemainingTime = (task: VBuddyTask) => {
     const end = new Date(new Date(task.startTime).getTime() + task.durationMinutes * 60000)
@@ -44,6 +63,40 @@ export default function NeedsPage() {
         <div className={styles.location}>
           <span className={styles.locationIcon}>&#128205;</span>
           <span>{buddy.currentLocation}</span>
+        </div>
+      )}
+
+      {background && background.status === 'COMPLETED' && background.narrativeText && (
+        <div className={styles.background}>
+          <div className={styles.backgroundHeader} onClick={() => setBackgroundOpen(!backgroundOpen)}>
+            <span>{backgroundOpen ? '\u25BC' : '\u25B6'} Hintergrund</span>
+          </div>
+          {backgroundOpen && (
+            <div className={styles.backgroundContent}>
+              {background.narrativeText.split('\n').map((p, i) => p.trim() ? <p key={i}>{p}</p> : null)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {background && (background.status === 'GENERATING' || background.status === 'PENDING') && (
+        <div className={styles.backgroundLoading}>Hintergrund wird generiert...</div>
+      )}
+
+      {background && background.status === 'FAILED' && (
+        <div className={styles.background}>
+          <div className={styles.backgroundHeader}>
+            <span>Hintergrund</span>
+          </div>
+          <div className={styles.backgroundContent}>
+            <p style={{ color: '#e74c3c' }}>Generierung fehlgeschlagen.</p>
+            <button className={styles.regenerateButton} onClick={() => {
+              if (buddyId) {
+                api.generateBackground(Number(buddyId))
+                loadBackground(Number(buddyId))
+              }
+            }}>Neu generieren</button>
+          </div>
         </div>
       )}
 

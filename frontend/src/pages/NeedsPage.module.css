@@ -128,3 +128,56 @@
   color: #888;
   text-align: right;
 }
+
+.background {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 1rem;
+  max-width: 500px;
+}
+
+.backgroundHeader {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  user-select: none;
+}
+
+.backgroundContent {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+.backgroundContent p {
+  margin-bottom: 0.5rem;
+}
+
+.backgroundLoading {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 1rem;
+  max-width: 500px;
+  color: #888;
+  font-style: italic;
+}
+
+.regenerateButton {
+  margin-top: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.regenerateButton:hover {
+  background: #2980b9;
+}

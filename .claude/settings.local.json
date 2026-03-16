@@ -4,7 +4,9 @@
       "Bash(cd:*)",
       "Bash(curl:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(where mvn:*)",
+      "Bash(docker compose:*)"
     ]
   }
 }
