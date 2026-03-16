@@ -23,7 +23,7 @@ Konfiguration in `application.yml` unter `vbuddy.ai.planning`, `vbuddy.ai.execut
 
 ## Agenten-Architektur
 
-Die Tätigkeiten des VBuddy werden durch zwei spezialisierte Agenten gesteuert. Beide werden als LangChain4j `AiServices`-Interfaces implementiert und in `AiConfig.java` konfiguriert.
+Die Tätigkeiten des VBuddy werden durch drei spezialisierte Agenten gesteuert. Alle werden als LangChain4j `AiServices`-Interfaces implementiert und in `AiConfig.java` konfiguriert.
 
 ### Planungs-Agent (`PlanningAiService`)
 
@@ -44,6 +44,8 @@ Plane die nächsten Aktivitäten für den VBuddy.
 {{needs}}
 **Zuletzt erledigte Aktivitäten:**
 {{recentTasks}}
+**Lokale Veranstaltungen und Aktivitäten (Websuche):**
+{{localActivities}}
 ```
 
 **Output-Struktur** (`PlannedTask`):
@@ -52,6 +54,17 @@ Plane die nächsten Aktivitäten für den VBuddy.
 - `location` — Ort
 - `startTime` — Startzeit im Format `yyyy-MM-dd HH:mm`
 - `durationMinutes` — Dauer in Minuten
+
+### Enrichment-Agent (`EnrichmentAiService`)
+
+- **Aufgabe**: Reichert die vom Planungs-Agent erzeugten Task-Beschreibungen an — macht sie ausführlicher und lebendiger
+- **Modell**: `qwen3:8b` (Execution-Modell) — besser für kreatives Schreiben als das Reasoning-Modell `deepseek-r1:7b`
+- **Input**: Persönlichkeit, Task-Titel, Task-Ort, Original-Beschreibung, Dauer, Planungskontext (Reasoning des Planungs-Agents), Websuche-Ergebnisse
+- **Output**: Strukturiertes `EnrichedTask`-Objekt (`enrichedDescription`)
+- **Auslösung**: Automatisch nach der Planung, vor dem Speichern — jeder Task wird einzeln angereichert
+- **Fehlerbehandlung**: Graceful Degradation — bei Fehler wird die Original-Beschreibung beibehalten
+
+**System-Prompt**: Kreativer Autor, der Aktivitätsbeschreibungen ausführlich und lebendig gestaltet (3-5 Sätze, passend zur Persönlichkeit, auf Deutsch, aus Erzähler-Perspektive).
 
 ### Ausführungs-Agent (`ExecutionAiService`)
 
@@ -70,9 +83,10 @@ Plane die nächsten Aktivitäten für den VBuddy.
 ### Zusammenspiel & Lifecycle
 
 1. Der **Planungs-Agent** erstellt den Tagesplan (3-5 Aktivitäten)
-2. Der **Ausführungs-Agent** arbeitet die Aktivitäten der Reihe nach ab
-3. Nach Abschluss einer Aktivität aktualisiert der Ausführungs-Agent den Zustand (Bedürfnisse, Ort, Blog-Post)
-4. Alle Entscheidungen beider Agenten werden im AI-Decision-Log protokolliert
+2. Der **Enrichment-Agent** reichert jede Task-Beschreibung einzeln an (vor dem Speichern)
+3. Der **Ausführungs-Agent** arbeitet die Aktivitäten der Reihe nach ab — mit den bereits angereicherten Beschreibungen
+4. Nach Abschluss einer Aktivität aktualisiert der Ausführungs-Agent den Zustand (Bedürfnisse, Ort, Blog-Post)
+5. Alle Entscheidungen der Agenten werden im AI-Decision-Log protokolliert
 
 **Automatischer Lifecycle** (`BuddyLifecycleService`):
 - Tick-Intervall: Alle 60 Sekunden (konfigurierbar via `vbuddy.lifecycle.interval-ms`)
@@ -117,11 +131,13 @@ RAG ist im Chat aktuell **nicht aktiv integriert**. Die pgvector-Infrastruktur i
 ### Ablauf
 
 1. Buddy, Bedürfnisse und kürzlich erledigte Tasks (letzte 10) werden geladen
-2. Bedürfnisse werden als String formatiert (`needType: currentValue/maxValue`)
-3. `PlanningAiService.planTasks()` wird mit allen Inputs aufgerufen
-4. Rückgabe: strukturiertes `PlannedTasks`-Objekt
-5. `PlannedTask`-Records werden in `VBuddyTask`-Entities konvertiert (Status: PLANNED)
-6. AI-Decision-Log-Eintrag wird erstellt (Kontext, Entscheidung, Reasoning)
+2. Websuche via SearXNG nach lokalen Aktivitäten/Veranstaltungen
+3. Bedürfnisse werden als String formatiert (`needType: currentValue/maxValue`)
+4. `PlanningAiService.planTasks()` wird mit allen Inputs aufgerufen
+5. Rückgabe: strukturiertes `PlannedTasks`-Objekt
+6. **Enrichment-Schritt**: Jeder `PlannedTask` wird einzeln durch `EnrichmentAiService.enrichTask()` geschickt — mit Persönlichkeit, Planungs-Reasoning und Websuche-Ergebnissen als Kontext. Bei Fehler wird die Original-Beschreibung beibehalten.
+7. Angereicherte `PlannedTask`-Records werden in `VBuddyTask`-Entities konvertiert (Status: PLANNED)
+8. AI-Decision-Log-Eintrag wird erstellt (Kontext, Entscheidung, Reasoning)
 
 ### Zeitraster
 
