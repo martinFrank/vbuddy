@@ -1,5 +1,6 @@
 package com.github.martinfrank.vbuddy.service;
 
+import com.github.martinfrank.vbuddy.ai.EnrichmentAiService;
 import com.github.martinfrank.vbuddy.ai.PlanningAiService;
 import com.github.martinfrank.vbuddy.ai.PlannedTask;
 import com.github.martinfrank.vbuddy.ai.PlannedTasks;
@@ -34,6 +35,7 @@ public class PlanningAgentService {
             .toFormatter();
 
     private final PlanningAiService planningAiService;
+    private final EnrichmentAiService enrichmentAiService;
     private final BuddyService buddyService;
     private final VBuddyTaskRepository taskRepository;
     private final AiDecisionLogRepository aiDecisionLogRepository;
@@ -87,7 +89,11 @@ public class PlanningAgentService {
             return Collections.emptyList();
         }
 
-        List<VBuddyTask> savedTasks = planned.tasks().stream()
+        List<PlannedTask> enrichedPlannedTasks = planned.tasks().stream()
+                .map(pt -> enrichTask(pt, buddy.getPersonality(), planned.reasoning(), localActivitiesText))
+                .toList();
+
+        List<VBuddyTask> savedTasks = enrichedPlannedTasks.stream()
                 .map(pt -> toEntity(pt, buddy))
                 .map(taskRepository::save)
                 .toList();
@@ -97,6 +103,28 @@ public class PlanningAgentService {
         log.info("Planungs-Agent hat {} Tasks für Buddy '{}' erstellt", savedTasks.size(), buddy.getName());
 
         return savedTasks;
+    }
+
+    private PlannedTask enrichTask(PlannedTask task, String personality, String planningReasoning, String localActivities) {
+        try {
+            log.info("Enrichment-Agent bearbeitet Task '{}'", task.title());
+            var enriched = enrichmentAiService.enrichTask(
+                    personality,
+                    task.title(),
+                    task.location(),
+                    task.description(),
+                    task.durationMinutes(),
+                    planningReasoning,
+                    localActivities
+            );
+            if (enriched != null && enriched.enrichedDescription() != null && !enriched.enrichedDescription().isBlank()) {
+                log.info("Enrichment erfolgreich für Task '{}'", task.title());
+                return new PlannedTask(task.title(), enriched.enrichedDescription(), task.location(), task.startTime(), task.durationMinutes());
+            }
+        } catch (Exception e) {
+            log.warn("Enrichment fehlgeschlagen für Task '{}': {} — verwende Original-Beschreibung", task.title(), e.getMessage());
+        }
+        return task;
     }
 
     private VBuddyTask toEntity(PlannedTask planned, Buddy buddy) {
