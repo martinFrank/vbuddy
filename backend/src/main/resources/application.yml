@@ -42,6 +42,10 @@ vbuddy:
       base-url: ${EMBEDDING_BASE_URL:http://localhost:11434/v1}
       api-key: ${EMBEDDING_API_KEY:ollama}
       model-name: ${EMBEDDING_MODEL:nomic-embed-text}
+  wordpress:
+    url: ${WORDPRESS_URL:}
+    username: ${WORDPRESS_USERNAME:}
+    password: ${WORDPRESS_PASSWORD:}
   searxng:
     base-url: ${SEARXNG_BASE_URL:http://localhost:8888}
     max-results: 5
