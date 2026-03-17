@@ -30,6 +30,9 @@ public class BuddyBackground {
     @Column(name = "narrative_text", columnDefinition = "TEXT")
     private String narrativeText;
 
+    @Column(name = "weekly_schedule", columnDefinition = "TEXT")
+    private String weeklySchedule;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private BackgroundStatus status = BackgroundStatus.PENDING;

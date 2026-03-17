@@ -96,6 +96,34 @@ public class AiConfig {
     }
 
     @Bean
+    public ChatLanguageModel scheduleChatModel(
+            @Value("${vbuddy.ai.schedule.base-url}") String baseUrl,
+            @Value("${vbuddy.ai.schedule.api-key}") String apiKey,
+            @Value("${vbuddy.ai.schedule.model-name}") String modelName,
+            @Value("${vbuddy.ai.schedule.temperature}") double temperature) {
+        return OpenAiChatModel.builder()
+                .baseUrl(baseUrl)
+                .apiKey(apiKey)
+                .modelName(modelName)
+                .temperature(temperature)
+                .build();
+    }
+
+    @Bean
+    public SchedulePlanningAiService schedulePlanningAiService(ChatLanguageModel planningChatModel) {
+        return AiServices.builder(SchedulePlanningAiService.class)
+                .chatLanguageModel(planningChatModel)
+                .build();
+    }
+
+    @Bean
+    public ScheduleEnrichmentAiService scheduleEnrichmentAiService(ChatLanguageModel scheduleChatModel) {
+        return AiServices.builder(ScheduleEnrichmentAiService.class)
+                .chatLanguageModel(scheduleChatModel)
+                .build();
+    }
+
+    @Bean
     public EmbeddingModel embeddingModel(
             @Value("${vbuddy.ai.embedding.base-url}") String baseUrl,
             @Value("${vbuddy.ai.embedding.api-key}") String apiKey,

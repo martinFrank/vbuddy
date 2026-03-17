@@ -21,6 +21,7 @@ export default function NeedsPage() {
   const [currentTask, setCurrentTask] = useState<VBuddyTask | null>(null)
   const [background, setBackground] = useState<BuddyBackground | null>(null)
   const [backgroundOpen, setBackgroundOpen] = useState(false)
+  const [scheduleOpen, setScheduleOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const bgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -68,6 +69,15 @@ export default function NeedsPage() {
               {background.narrativeText.split('\n').map((p, i) => p.trim() ? <p key={i}>{p}</p> : null)}
             </div>
           )}
+        </div>
+      )}
+
+      {background && background.status === 'COMPLETED' && background.weeklySchedule && (
+        <div className={styles.background}>
+          <div className={styles.backgroundHeader} onClick={() => setScheduleOpen(!scheduleOpen)}>
+            <span>{scheduleOpen ? '\u25BC' : '\u25B6'} Wochenplan</span>
+          </div>
+          {scheduleOpen && <ScheduleView json={background.weeklySchedule} />}
         </div>
       )}
 
@@ -136,6 +146,53 @@ export default function NeedsPage() {
           )
         })}
       </div>
+    </div>
+  )
+}
+
+interface TimeBlock {
+  start: string
+  end: string
+  activity: string
+}
+
+interface WeeklySchedule {
+  weekday: TimeBlock[]
+  weekend: TimeBlock[]
+}
+
+function ScheduleView({ json }: { json: string }) {
+  let schedule: WeeklySchedule
+  try {
+    schedule = JSON.parse(json)
+  } catch {
+    return <p className={styles.backgroundContent}>Stundenplan konnte nicht geladen werden.</p>
+  }
+
+  const isWeekend = new Date().getDay() === 0 || new Date().getDay() === 6
+  const currentHHMM = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+
+  const renderBlocks = (blocks: TimeBlock[]) => (
+    <div className={styles.scheduleBlocks}>
+      {blocks.map((block, i) => {
+        const active = isWeekend === (blocks === schedule.weekend)
+          && currentHHMM >= block.start && currentHHMM < block.end
+        return (
+          <div key={i} className={`${styles.scheduleBlock} ${active ? styles.scheduleBlockActive : ''}`}>
+            <span className={styles.scheduleTime}>{block.start} – {block.end}</span>
+            <span className={styles.scheduleActivity}>{block.activity}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+
+  return (
+    <div className={styles.backgroundContent}>
+      <h4 className={styles.scheduleHeading}>Wochentag (Mo–Fr)</h4>
+      {renderBlocks(schedule.weekday)}
+      <h4 className={styles.scheduleHeading}>Wochenende (Sa–So)</h4>
+      {renderBlocks(schedule.weekend)}
     </div>
   )
 }
