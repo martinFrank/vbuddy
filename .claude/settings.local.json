@@ -1,19 +1,22 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cd:*)",
-      "Bash(curl:*)",
-      "Bash(find:*)",
-      "Bash(ls:*)",
-      "Bash(where mvn:*)",
-      "Bash(docker compose:*)",
-      "Bash(grep:*)",
-      "Bash(jar tf:*)",
-      "Bash(javap:*)",
-      "Bash(wc:*)",
-      "Bash(cmd.exe /c \"where mvn\" 2>/dev/null || cmd.exe /c \"where java\" 2>/dev/null; ls \"C:\\\\Users\\\\m.frank\\\\IdeaProjects\\\\privat\\\\VBuddy\\\\backend\"/.mvn 2>/dev/null; ls \"C:\\\\Users\\\\m.frank\\\\IdeaProjects\\\\privat\\\\VBuddy\\\\backend\"/mvnw* 2>/dev/null)",
-      "Bash(cmd.exe /c \"where mvn 2>nul || where mvnw 2>nul || echo NOT_FOUND\" 2>&1 | grep -v \"^$\" | head -5)",
-      "Bash(which docker:*)"
+      "Bash(cd *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(cat *)",
+      "Bash(which *)",
+      "Bash(where *)",
+      "Bash(cmd.exe *)",
+      "Bash(curl *)",
+      "Bash(wc *)",
+      "Bash(docker *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(mkdir *)",
+      "Bash(MSYS_NO_PATHCONV=1 *)"
     ]
   }
 }

@@ -9,6 +9,7 @@ public record BuddyBackgroundResponse(
         Long id,
         String structuredData,
         String narrativeText,
+        String weeklySchedule,
         BackgroundStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -18,6 +19,7 @@ public record BuddyBackgroundResponse(
                 bg.getId(),
                 bg.getStructuredData(),
                 bg.getNarrativeText(),
+                bg.getWeeklySchedule(),
                 bg.getStatus(),
                 bg.getCreatedAt(),
                 bg.getUpdatedAt()

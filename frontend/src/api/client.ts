@@ -80,6 +80,7 @@ export interface AiDecisionLog {
 export interface BuddyBackground {
   id: number;
   structuredData: string | null;
+  weeklySchedule: string | null;
   narrativeText: string | null;
   status: 'PENDING' | 'GENERATING' | 'COMPLETED' | 'FAILED';
   createdAt: string;

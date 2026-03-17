@@ -181,3 +181,48 @@
 .regenerateButton:hover {
   background: var(--color-info-hover);
 }
+
+.scheduleHeading {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-sm);
+}
+
+.scheduleHeading:first-child {
+  margin-top: 0;
+}
+
+.scheduleBlocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.scheduleBlock {
+  display: flex;
+  gap: var(--space-lg);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.scheduleBlockActive {
+  background: var(--color-badge-green-bg);
+  font-weight: 600;
+}
+
+.scheduleTime {
+  min-width: 100px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.scheduleBlockActive .scheduleTime {
+  color: var(--color-badge-green-text);
+}
+
+.scheduleActivity {
+  color: var(--color-text);
+}

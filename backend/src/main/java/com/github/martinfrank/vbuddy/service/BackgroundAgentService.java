@@ -5,6 +5,10 @@ import com.github.martinfrank.vbuddy.ai.BackgroundEnrichmentAiService;
 import com.github.martinfrank.vbuddy.ai.BackgroundPlanningAiService;
 import com.github.martinfrank.vbuddy.ai.EnrichedBackground;
 import com.github.martinfrank.vbuddy.ai.PlannedBackground;
+import com.github.martinfrank.vbuddy.ai.EnrichedWeeklySchedule;
+import com.github.martinfrank.vbuddy.ai.PlannedWeeklySchedule;
+import com.github.martinfrank.vbuddy.ai.ScheduleEnrichmentAiService;
+import com.github.martinfrank.vbuddy.ai.SchedulePlanningAiService;
 import com.github.martinfrank.vbuddy.controller.exception.EntityNotFoundException;
 import com.github.martinfrank.vbuddy.model.AiDecisionLog;
 import com.github.martinfrank.vbuddy.model.BackgroundStatus;
@@ -31,6 +35,8 @@ public class BackgroundAgentService {
     private final AiDecisionLogRepository aiDecisionLogRepository;
     private final BackgroundPlanningAiService backgroundPlanningAiService;
     private final BackgroundEnrichmentAiService backgroundEnrichmentAiService;
+    private final SchedulePlanningAiService schedulePlanningAiService;
+    private final ScheduleEnrichmentAiService scheduleEnrichmentAiService;
     private final ObjectMapper objectMapper;
     private final EmbeddingService embeddingService;
 
@@ -82,13 +88,54 @@ public class BackgroundAgentService {
                     buddy.getPersonality(), structuredDataJson);
 
             background.setNarrativeText(enriched.narrativeText());
-            background.setStatus(BackgroundStatus.COMPLETED);
             background.setUpdatedAt(LocalDateTime.now());
             backgroundRepository.save(background);
 
             logAiDecision(buddy,
                     "Background-Enrichment für " + buddy.getName() + " | Strukturdaten vorhanden",
                     "Erzähltext erstellt (" + enriched.narrativeText().length() + " Zeichen)",
+                    null);
+
+            // Step 3: Schedule Planning Agent — weekly routine (structured)
+            log.info("Starting schedule planning for buddy {} ({})", buddyId, buddy.getName());
+            PlannedWeeklySchedule schedule = schedulePlanningAiService.planSchedule(
+                    buddy.getPersonality(), enriched.narrativeText());
+
+            logAiDecision(buddy,
+                    "Stundenplan-Planung für " + buddy.getName(),
+                    "Roh-Stundenplan erstellt: " + schedule.weekday().size() + " Wochentag-Blöcke, "
+                            + schedule.weekend().size() + " Wochenend-Blöcke",
+                    schedule.reasoning());
+
+            // Step 4: Schedule Enrichment Agent — better formulations
+            log.info("Starting schedule enrichment for buddy {} ({})", buddyId, buddy.getName());
+            String rawScheduleJson;
+            try {
+                rawScheduleJson = objectMapper.writeValueAsString(schedule);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to serialize weekly schedule", e);
+            }
+
+            EnrichedWeeklySchedule enrichedSchedule = scheduleEnrichmentAiService.enrichSchedule(
+                    buddy.getPersonality(), rawScheduleJson);
+
+            String enrichedScheduleJson;
+            try {
+                enrichedScheduleJson = objectMapper.writeValueAsString(enrichedSchedule);
+            } catch (Exception e) {
+                log.warn("Failed to serialize enriched schedule, using raw schedule: {}", e.getMessage());
+                enrichedScheduleJson = rawScheduleJson;
+            }
+
+            background.setWeeklySchedule(enrichedScheduleJson);
+            background.setStatus(BackgroundStatus.COMPLETED);
+            background.setUpdatedAt(LocalDateTime.now());
+            backgroundRepository.save(background);
+
+            logAiDecision(buddy,
+                    "Stundenplan-Enrichment für " + buddy.getName(),
+                    "Stundenplan-Formulierungen verbessert: " + enrichedSchedule.weekday().size() + " Wochentag-Blöcke, "
+                            + enrichedSchedule.weekend().size() + " Wochenend-Blöcke",
                     null);
 
             try {

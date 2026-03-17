@@ -41,6 +41,7 @@ public class PlanningAgentService {
     private final AiDecisionLogRepository aiDecisionLogRepository;
     private final SearxngSearchService searxngSearchService;
     private final EmbeddingService embeddingService;
+    private final BackgroundAgentService backgroundAgentService;
 
     @Transactional
     public List<VBuddyTask> planTasks(Long buddyId) {
@@ -75,6 +76,13 @@ public class PlanningAgentService {
         String localActivitiesText = "## Veranstaltungen & Events\n" + localEventsText
                 + "\n\n## Geschäfte, Restaurants & Cafés\n" + localBusinessesText;
 
+        String weeklyScheduleText = backgroundAgentService.getBackground(buddyId)
+                .map(bg -> bg.getWeeklySchedule() != null ? bg.getWeeklySchedule() : "Kein Stundenplan verfügbar.")
+                .orElse("Kein Stundenplan verfügbar.");
+
+        boolean isWeekend = LocalDate.now().getDayOfWeek().getValue() >= 6;
+        String dayType = isWeekend ? "Wochenende" : "Wochentag";
+
         String historicalContext;
         try {
             String ragQuery = buddy.getPersonality() + " " + needsText;
@@ -98,7 +106,9 @@ public class PlanningAgentService {
                     needsText,
                     recentTasksText,
                     localActivitiesText,
-                    historicalContext
+                    historicalContext,
+                    weeklyScheduleText,
+                    dayType
             );
         } catch (Exception e) {
             log.warn("Planungs-Agent konnte keine Tasks parsen für Buddy '{}': {}", buddy.getName(), e.getMessage());
