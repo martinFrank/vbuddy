@@ -44,6 +44,8 @@ class ExecutionAgentServiceTest {
     private AiDecisionLogRepository aiDecisionLogRepository;
     @Mock
     private EmbeddingService embeddingService;
+    @Mock
+    private WordPressService wordPressService;
 
     @InjectMocks
     private ExecutionAgentService executionAgentService;

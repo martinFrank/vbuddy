@@ -30,6 +30,7 @@ public class ExecutionAgentService {
     private final BlogPostRepository blogPostRepository;
     private final AiDecisionLogRepository aiDecisionLogRepository;
     private final EmbeddingService embeddingService;
+    private final WordPressService wordPressService;
 
     @Transactional
     public VBuddyTask startTask(Long taskId) {
@@ -131,6 +132,8 @@ public class ExecutionAgentService {
         blogPostRepository.save(blogPost);
 
         log.info("Blogartikel '{}' erstellt", result.blogTitle());
+
+        wordPressService.publishPost(result.blogTitle(), result.blogContent());
     }
 
     private void adjustNeeds(List<Need> needs, List<NeedAdjustment> adjustments) {
