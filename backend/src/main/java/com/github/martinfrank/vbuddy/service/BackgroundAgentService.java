@@ -5,6 +5,7 @@ import com.github.martinfrank.vbuddy.ai.BackgroundEnrichmentAiService;
 import com.github.martinfrank.vbuddy.ai.BackgroundPlanningAiService;
 import com.github.martinfrank.vbuddy.ai.EnrichedBackground;
 import com.github.martinfrank.vbuddy.ai.PlannedBackground;
+import com.github.martinfrank.vbuddy.controller.exception.EntityNotFoundException;
 import com.github.martinfrank.vbuddy.model.AiDecisionLog;
 import com.github.martinfrank.vbuddy.model.BackgroundStatus;
 import com.github.martinfrank.vbuddy.model.Buddy;
@@ -37,7 +38,7 @@ public class BackgroundAgentService {
     public void generateBackground(Long buddyId) {
         try {
             Buddy buddy = buddyRepository.findById(buddyId)
-                    .orElseThrow(() -> new RuntimeException("Buddy not found: " + buddyId));
+                    .orElseThrow(() -> new EntityNotFoundException("Buddy", buddyId));
 
             BuddyBackground background = backgroundRepository.findByBuddyId(buddyId)
                     .orElseGet(() -> {

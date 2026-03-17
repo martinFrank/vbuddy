@@ -1,25 +1,30 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { api, AiDecisionLog } from '../api/client'
+import ErrorBanner from '../components/ErrorBanner'
+import useBuddyId from '../hooks/useBuddyId'
 import styles from './AiDecisionLogPage.module.css'
 
 export default function AiDecisionLogPage() {
-  const { buddyId } = useParams()
+  const buddyId = useBuddyId()
   const [logs, setLogs] = useState<AiDecisionLog[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (buddyId) {
-      api.getAiDecisionLogs(Number(buddyId)).then(setLogs)
-    }
+    api.getAiDecisionLogs(buddyId)
+      .then(setLogs)
+      .catch((e) => setError(e.message))
   }, [buddyId])
-
-  if (logs.length === 0) {
-    return <p className={styles.empty}>Noch keine AI-Entscheidungen protokolliert.</p>
-  }
 
   return (
     <div className={styles.log}>
       <h2>AI-Entscheidungen</h2>
+
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+
+      {logs.length === 0 && !error && (
+        <p className={styles.empty}>Noch keine AI-Entscheidungen protokolliert.</p>
+      )}
+
       {logs.map((entry) => (
         <div key={entry.id} className={styles.entry}>
           <div className={styles.header}>

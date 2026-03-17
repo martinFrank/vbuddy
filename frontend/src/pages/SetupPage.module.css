@@ -1,81 +1,86 @@
 .container {
   max-width: 600px;
   margin: 4rem auto;
-  padding: 2rem;
+  padding: var(--space-2xl);
 }
 
 .container h1 {
   font-size: 2rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-sm);
 }
 
 .container p {
-  color: #666;
-  margin-bottom: 2rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2xl);
 }
 
 .section {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-2xl);
 }
 
 .section h2 {
   font-size: 1.2rem;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-lg);
 }
 
 .buddyList {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-sm);
 }
 
 .buddyCard {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: white;
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
   cursor: pointer;
   text-align: left;
   transition: border-color 0.2s;
 }
 
 .buddyCard:hover {
-  border-color: #2c3e50;
+  border-color: var(--color-primary);
 }
 
 .buddyCard span {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-md);
 }
 
 .form input,
 .form textarea {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 1rem;
   font-family: inherit;
 }
 
 .form button {
-  padding: 0.75rem;
-  background: #2c3e50;
+  padding: var(--space-md);
+  background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   cursor: pointer;
 }
 
 .form button:hover {
-  background: #34495e;
+  background: var(--color-primary-hover);
+}
+
+.form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

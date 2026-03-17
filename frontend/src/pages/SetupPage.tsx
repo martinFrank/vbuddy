@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, Buddy } from '../api/client'
+import ErrorBanner from '../components/ErrorBanner'
 import styles from './SetupPage.module.css'
 
 export default function SetupPage() {
@@ -9,15 +10,28 @@ export default function SetupPage() {
   const [name, setName] = useState('')
   const [personality, setPersonality] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
 
   useEffect(() => {
-    api.getBuddies().then(setBuddies).finally(() => setLoading(false))
+    api.getBuddies()
+      .then(setBuddies)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
   }, [])
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    const buddy = await api.createBuddy(name, personality)
-    navigate(`/buddy/${buddy.id}/chat`)
+    setError(null)
+    setCreating(true)
+    try {
+      const buddy = await api.createBuddy(name, personality)
+      navigate(`/buddy/${buddy.id}/chat`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Buddy konnte nicht erstellt werden.')
+    } finally {
+      setCreating(false)
+    }
   }
 
   if (loading) return <div className={styles.container}>Laden...</div>
@@ -26,6 +40,8 @@ export default function SetupPage() {
     <div className={styles.container}>
       <h1>VBuddy</h1>
       <p>Erstelle deinen virtuellen Freund oder wähle einen bestehenden aus.</p>
+
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       {buddies.length > 0 && (
         <div className={styles.section}>
@@ -54,6 +70,7 @@ export default function SetupPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            disabled={creating}
           />
           <textarea
             placeholder="Persönlichkeit beschreiben..."
@@ -61,8 +78,11 @@ export default function SetupPage() {
             onChange={(e) => setPersonality(e.target.value)}
             rows={4}
             required
+            disabled={creating}
           />
-          <button type="submit">Erstellen</button>
+          <button type="submit" disabled={creating}>
+            {creating ? 'Wird erstellt...' : 'Erstellen'}
+          </button>
         </form>
       </div>
     </div>

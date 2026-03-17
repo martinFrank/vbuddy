@@ -1,9 +1,9 @@
 package com.github.martinfrank.vbuddy.controller;
 
+import com.github.martinfrank.vbuddy.controller.dto.BuddyBackgroundResponse;
+import com.github.martinfrank.vbuddy.controller.dto.BuddyResponse;
 import com.github.martinfrank.vbuddy.controller.dto.CreateBuddyRequest;
-import com.github.martinfrank.vbuddy.model.Buddy;
-import com.github.martinfrank.vbuddy.model.BuddyBackground;
-import com.github.martinfrank.vbuddy.model.Need;
+import com.github.martinfrank.vbuddy.controller.dto.NeedResponse;
 import com.github.martinfrank.vbuddy.service.BackgroundAgentService;
 import com.github.martinfrank.vbuddy.service.BuddyService;
 import jakarta.validation.Valid;
@@ -23,29 +23,30 @@ public class BuddyController {
     private final BackgroundAgentService backgroundAgentService;
 
     @GetMapping
-    public List<Buddy> getAll() {
-        return buddyService.findAll();
+    public List<BuddyResponse> getAll() {
+        return buddyService.findAll().stream().map(BuddyResponse::from).toList();
     }
 
     @GetMapping("/{id}")
-    public Buddy getById(@PathVariable Long id) {
-        return buddyService.findById(id);
+    public BuddyResponse getById(@PathVariable Long id) {
+        return BuddyResponse.from(buddyService.findById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Buddy create(@Valid @RequestBody CreateBuddyRequest request) {
-        return buddyService.create(request.name(), request.personality());
+    public BuddyResponse create(@Valid @RequestBody CreateBuddyRequest request) {
+        return BuddyResponse.from(buddyService.create(request.name(), request.personality()));
     }
 
     @GetMapping("/{id}/needs")
-    public List<Need> getNeeds(@PathVariable Long id) {
-        return buddyService.getNeeds(id);
+    public List<NeedResponse> getNeeds(@PathVariable Long id) {
+        return buddyService.getNeeds(id).stream().map(NeedResponse::from).toList();
     }
 
     @GetMapping("/{id}/background")
-    public ResponseEntity<BuddyBackground> getBackground(@PathVariable Long id) {
+    public ResponseEntity<BuddyBackgroundResponse> getBackground(@PathVariable Long id) {
         return backgroundAgentService.getBackground(id)
+                .map(BuddyBackgroundResponse::from)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

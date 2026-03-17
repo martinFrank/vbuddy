@@ -1,6 +1,6 @@
 package com.github.martinfrank.vbuddy.controller;
 
-import com.github.martinfrank.vbuddy.model.AiDecisionLog;
+import com.github.martinfrank.vbuddy.controller.dto.AiDecisionLogResponse;
 import com.github.martinfrank.vbuddy.repository.AiDecisionLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,8 @@ public class AiDecisionLogController {
     private final AiDecisionLogRepository aiDecisionLogRepository;
 
     @GetMapping
-    public List<AiDecisionLog> getLogs(@PathVariable Long buddyId) {
-        return aiDecisionLogRepository.findByBuddyIdOrderByCreatedAtDesc(buddyId);
+    public List<AiDecisionLogResponse> getLogs(@PathVariable Long buddyId) {
+        return aiDecisionLogRepository.findByBuddyIdOrderByCreatedAtDesc(buddyId)
+                .stream().map(AiDecisionLogResponse::from).toList();
     }
 }

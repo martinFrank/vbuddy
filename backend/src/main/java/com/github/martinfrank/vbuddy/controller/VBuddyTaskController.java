@@ -1,12 +1,12 @@
 package com.github.martinfrank.vbuddy.controller;
 
-import com.github.martinfrank.vbuddy.model.VBuddyTask;
+import com.github.martinfrank.vbuddy.controller.dto.VBuddyTaskResponse;
+import com.github.martinfrank.vbuddy.model.TaskStatus;
 import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
 import com.github.martinfrank.vbuddy.service.BuddyLifecycleService;
 import com.github.martinfrank.vbuddy.service.ExecutionAgentService;
 import com.github.martinfrank.vbuddy.service.PlanningAgentService;
 import lombok.RequiredArgsConstructor;
-import com.github.martinfrank.vbuddy.model.TaskStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,38 +25,43 @@ public class VBuddyTaskController {
     private final BuddyLifecycleService buddyLifecycleService;
 
     @GetMapping
-    public List<VBuddyTask> getTasks(@PathVariable Long buddyId) {
-        return taskRepository.findByBuddyIdOrderByStartTimeAsc(buddyId);
+    public List<VBuddyTaskResponse> getTasks(@PathVariable Long buddyId) {
+        return taskRepository.findByBuddyIdOrderByStartTimeAsc(buddyId)
+                .stream().map(VBuddyTaskResponse::from).toList();
     }
 
     @GetMapping("/timeline")
-    public List<VBuddyTask> getTimeline(@PathVariable Long buddyId) {
+    public List<VBuddyTaskResponse> getTimeline(@PathVariable Long buddyId) {
         LocalDateTime from = LocalDateTime.now().minusHours(8);
         LocalDateTime to = LocalDateTime.now().plusHours(16);
-        return taskRepository.findByBuddyIdAndStartTimeBetweenOrderByStartTimeAsc(buddyId, from, to);
+        return taskRepository.findByBuddyIdAndStartTimeBetweenOrderByStartTimeAsc(buddyId, from, to)
+                .stream().map(VBuddyTaskResponse::from).toList();
     }
 
     @GetMapping("/current")
-    public ResponseEntity<VBuddyTask> getCurrentTask(@PathVariable Long buddyId) {
+    public ResponseEntity<VBuddyTaskResponse> getCurrentTask(@PathVariable Long buddyId) {
         return taskRepository.findFirstByBuddyIdAndStatusOrderByStartTimeAsc(buddyId, TaskStatus.IN_PROGRESS)
+                .map(VBuddyTaskResponse::from)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/plan")
     @ResponseStatus(HttpStatus.CREATED)
-    public List<VBuddyTask> planTasks(@PathVariable Long buddyId) {
-        return planningAgentService.planTasks(buddyId);
+    public List<VBuddyTaskResponse> planTasks(@PathVariable Long buddyId) {
+        return planningAgentService.planTasks(buddyId)
+                .stream().map(VBuddyTaskResponse::from).toList();
     }
 
     @PostMapping("/{taskId}/execute")
-    public VBuddyTask executeTask(@PathVariable Long buddyId, @PathVariable Long taskId) {
-        return executionAgentService.executeTask(taskId);
+    public VBuddyTaskResponse executeTask(@PathVariable Long buddyId, @PathVariable Long taskId) {
+        return VBuddyTaskResponse.from(executionAgentService.executeTask(taskId));
     }
 
     @PostMapping("/execute-all")
-    public List<VBuddyTask> executeAllPlannedTasks(@PathVariable Long buddyId) {
-        return executionAgentService.executeAllPlannedTasks(buddyId);
+    public List<VBuddyTaskResponse> executeAllPlannedTasks(@PathVariable Long buddyId) {
+        return executionAgentService.executeAllPlannedTasks(buddyId)
+                .stream().map(VBuddyTaskResponse::from).toList();
     }
 
     @PostMapping("/tick")

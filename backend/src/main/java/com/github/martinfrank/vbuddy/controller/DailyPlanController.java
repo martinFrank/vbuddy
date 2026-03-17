@@ -1,6 +1,6 @@
 package com.github.martinfrank.vbuddy.controller;
 
-import com.github.martinfrank.vbuddy.model.DailyPlan;
+import com.github.martinfrank.vbuddy.controller.dto.DailyPlanResponse;
 import com.github.martinfrank.vbuddy.service.DailyPlanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +16,14 @@ public class DailyPlanController {
     private final DailyPlanService dailyPlanService;
 
     @GetMapping
-    public List<DailyPlan> getPlans(@PathVariable Long buddyId) {
-        return dailyPlanService.getPlans(buddyId);
+    public List<DailyPlanResponse> getPlans(@PathVariable Long buddyId) {
+        return dailyPlanService.getPlans(buddyId).stream().map(DailyPlanResponse::from).toList();
     }
 
     @GetMapping("/today")
-    public ResponseEntity<DailyPlan> getTodayPlan(@PathVariable Long buddyId) {
+    public ResponseEntity<DailyPlanResponse> getTodayPlan(@PathVariable Long buddyId) {
         return dailyPlanService.getTodayPlan(buddyId)
+                .map(DailyPlanResponse::from)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

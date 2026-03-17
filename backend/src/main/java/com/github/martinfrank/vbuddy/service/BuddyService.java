@@ -1,5 +1,6 @@
 package com.github.martinfrank.vbuddy.service;
 
+import com.github.martinfrank.vbuddy.controller.exception.EntityNotFoundException;
 import com.github.martinfrank.vbuddy.model.*;
 import com.github.martinfrank.vbuddy.repository.BuddyRepository;
 import com.github.martinfrank.vbuddy.repository.NeedRepository;
@@ -25,7 +26,7 @@ public class BuddyService {
 
     public Buddy findById(Long id) {
         return buddyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Buddy not found: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Buddy", id));
     }
 
     @Transactional
