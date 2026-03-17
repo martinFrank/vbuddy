@@ -49,6 +49,43 @@ public class SearxngSearchService {
         return executeSearch(query);
     }
 
+    public List<String> searchImages(String query, int maxImages) {
+        if (!enabled) {
+            return Collections.emptyList();
+        }
+
+        log.info("SearXNG-Bildersuche: '{}'", query);
+
+        try {
+            String url = UriComponentsBuilder.fromHttpUrl(baseUrl + "/search")
+                    .queryParam("q", query)
+                    .queryParam("format", "json")
+                    .queryParam("categories", "images")
+                    .queryParam("language", language)
+                    .build()
+                    .toUriString();
+
+            SearxngResponse response = restTemplate.getForObject(url, SearxngResponse.class);
+
+            if (response == null || response.results() == null) {
+                return Collections.emptyList();
+            }
+
+            List<String> imageUrls = response.results().stream()
+                    .filter(r -> r.img_src() != null && !r.img_src().isBlank())
+                    .limit(maxImages)
+                    .map(SearxngResult::img_src)
+                    .toList();
+
+            log.info("SearXNG-Bildersuche ergab {} Bilder", imageUrls.size());
+            return imageUrls;
+
+        } catch (Exception e) {
+            log.warn("SearXNG-Bildersuche fehlgeschlagen für '{}': {}", query, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     public List<SearchResult> searchLocalBusinesses(String location) {
         if (!enabled) {
             log.debug("SearXNG-Suche ist deaktiviert");

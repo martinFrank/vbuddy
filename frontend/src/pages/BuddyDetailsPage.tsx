@@ -4,7 +4,7 @@ import ErrorBanner from '../components/ErrorBanner'
 import useBuddyId from '../hooks/useBuddyId'
 import usePoll from '../hooks/usePoll'
 import { formatRemainingMinutes } from '../utils/time'
-import styles from './NeedsPage.module.css'
+import styles from './BuddyDetailsPage.module.css'
 
 const NEED_LABELS: Record<string, string> = {
   HUNGER: 'Hunger',

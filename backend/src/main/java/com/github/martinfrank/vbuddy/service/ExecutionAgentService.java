@@ -31,6 +31,7 @@ public class ExecutionAgentService {
     private final AiDecisionLogRepository aiDecisionLogRepository;
     private final EmbeddingService embeddingService;
     private final WordPressService wordPressService;
+    private final SearxngSearchService searxngSearchService;
 
     @Transactional
     public VBuddyTask startTask(Long taskId) {
@@ -133,7 +134,10 @@ public class ExecutionAgentService {
 
         log.info("Blogartikel '{}' erstellt", result.blogTitle());
 
-        wordPressService.publishPost(result.blogTitle(), result.blogContent());
+        String imageQuery = task.getTitle() + " " + task.getLocation();
+        List<String> imageUrls = searxngSearchService.searchImages(imageQuery, 3);
+
+        wordPressService.publishPost(result.blogTitle(), result.blogContent(), imageUrls);
     }
 
     private void adjustNeeds(List<Need> needs, List<NeedAdjustment> adjustments) {

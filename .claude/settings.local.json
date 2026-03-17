@@ -16,7 +16,8 @@
       "Bash(npx *)",
       "Bash(node *)",
       "Bash(mkdir *)",
-      "Bash(MSYS_NO_PATHCONV=1 *)"
+      "Bash(MSYS_NO_PATHCONV=1 *)",
+      "Bash(cd:*)"
     ]
   }
 }

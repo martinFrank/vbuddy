@@ -46,6 +46,8 @@ class ExecutionAgentServiceTest {
     private EmbeddingService embeddingService;
     @Mock
     private WordPressService wordPressService;
+    @Mock
+    private SearxngSearchService searxngSearchService;
 
     @InjectMocks
     private ExecutionAgentService executionAgentService;

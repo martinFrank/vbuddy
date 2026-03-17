@@ -15,8 +15,8 @@ export default function Layout() {
 <NavLink to={`${base}/daily-plan`} className={({ isActive }) => isActive ? styles.active : ''}>
           Tagesplan
         </NavLink>
-        <NavLink to={`${base}/needs`} className={({ isActive }) => isActive ? styles.active : ''}>
-          Zustand
+        <NavLink to={`${base}/details`} className={({ isActive }) => isActive ? styles.active : ''}>
+          Details
         </NavLink>
         <NavLink to={`${base}/ai-log`} className={({ isActive }) => isActive ? styles.active : ''}>
           AI-Entscheidungen
