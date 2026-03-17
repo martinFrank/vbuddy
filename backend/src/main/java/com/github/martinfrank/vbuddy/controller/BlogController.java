@@ -1,6 +1,6 @@
 package com.github.martinfrank.vbuddy.controller;
 
-import com.github.martinfrank.vbuddy.model.BlogPost;
+import com.github.martinfrank.vbuddy.controller.dto.BlogPostResponse;
 import com.github.martinfrank.vbuddy.service.BlogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +15,12 @@ public class BlogController {
     private final BlogService blogService;
 
     @GetMapping
-    public List<BlogPost> getPosts(@PathVariable Long buddyId) {
-        return blogService.getPosts(buddyId);
+    public List<BlogPostResponse> getPosts(@PathVariable Long buddyId) {
+        return blogService.getPosts(buddyId).stream().map(BlogPostResponse::from).toList();
     }
 
     @GetMapping("/{postId}")
-    public BlogPost getPost(@PathVariable Long buddyId, @PathVariable Long postId) {
-        return blogService.getPost(postId);
+    public BlogPostResponse getPost(@PathVariable Long buddyId, @PathVariable Long postId) {
+        return BlogPostResponse.from(blogService.getPost(postId));
     }
 }

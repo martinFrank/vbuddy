@@ -1,19 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { api, ChatMessage } from '../api/client'
+import ErrorBanner from '../components/ErrorBanner'
+import useBuddyId from '../hooks/useBuddyId'
 import styles from './ChatPage.module.css'
 
 export default function ChatPage() {
-  const { buddyId } = useParams()
+  const buddyId = useBuddyId()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (buddyId) {
-      api.getChatHistory(Number(buddyId)).then(setMessages)
-    }
+    api.getChatHistory(buddyId)
+      .then(setMessages)
+      .catch((e) => setError(e.message))
   }, [buddyId])
 
   useEffect(() => {
@@ -22,8 +24,9 @@ export default function ChatPage() {
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || !buddyId) return
+    if (!input.trim()) return
 
+    setError(null)
     const userMsg: ChatMessage = {
       id: Date.now(),
       role: 'USER',
@@ -31,12 +34,15 @@ export default function ChatPage() {
       createdAt: new Date().toISOString(),
     }
     setMessages((prev) => [...prev, userMsg])
+    const currentInput = input
     setInput('')
     setSending(true)
 
     try {
-      const reply = await api.sendMessage(Number(buddyId), input)
+      const reply = await api.sendMessage(buddyId, currentInput)
       setMessages((prev) => [...prev, reply])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Nachricht konnte nicht gesendet werden.')
     } finally {
       setSending(false)
     }
@@ -45,6 +51,7 @@ export default function ChatPage() {
   return (
     <div className={styles.chat}>
       <div className={styles.messages}>
+        {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -64,7 +71,7 @@ export default function ChatPage() {
           disabled={sending}
         />
         <button type="submit" disabled={sending || !input.trim()}>
-          Senden
+          {sending ? '...' : 'Senden'}
         </button>
       </form>
     </div>

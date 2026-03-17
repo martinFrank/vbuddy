@@ -3,6 +3,8 @@ package com.github.martinfrank.vbuddy.service;
 import com.github.martinfrank.vbuddy.ai.ExecutionAiService;
 import com.github.martinfrank.vbuddy.ai.NeedAdjustment;
 import com.github.martinfrank.vbuddy.ai.TaskExecutionResult;
+import com.github.martinfrank.vbuddy.controller.exception.EntityNotFoundException;
+import com.github.martinfrank.vbuddy.controller.exception.InvalidStateException;
 import com.github.martinfrank.vbuddy.model.*;
 import com.github.martinfrank.vbuddy.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +34,10 @@ public class ExecutionAgentService {
     @Transactional
     public VBuddyTask startTask(Long taskId) {
         VBuddyTask task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
+                .orElseThrow(() -> new EntityNotFoundException("Task", taskId));
 
         if (task.getStatus() != TaskStatus.PLANNED) {
-            throw new RuntimeException("Task is not in PLANNED status: " + taskId);
+            throw new InvalidStateException("Task is not in PLANNED status: " + taskId);
         }
 
         Buddy buddy = buddyService.findById(task.getBuddy().getId());
@@ -60,10 +62,10 @@ public class ExecutionAgentService {
     @Transactional
     public VBuddyTask completeTask(Long taskId) {
         VBuddyTask task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
+                .orElseThrow(() -> new EntityNotFoundException("Task", taskId));
 
         if (task.getStatus() != TaskStatus.IN_PROGRESS) {
-            throw new RuntimeException("Task is not IN_PROGRESS: " + taskId);
+            throw new InvalidStateException("Task is not IN_PROGRESS: " + taskId);
         }
 
         Buddy buddy = buddyService.findById(task.getBuddy().getId());

@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useState } from 'react'
 import { api, VBuddyTask } from '../api/client'
+import ErrorBanner from '../components/ErrorBanner'
+import useBuddyId from '../hooks/useBuddyId'
+import usePoll from '../hooks/usePoll'
+import { formatTime, formatEndTime } from '../utils/time'
 import styles from './DailyPlanPage.module.css'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -11,42 +14,31 @@ const STATUS_LABELS: Record<string, string> = {
   ABORTED: 'Abgebrochen',
 }
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
-}
-
-function formatEndTime(iso: string, durationMinutes: number) {
-  const end = new Date(new Date(iso).getTime() + durationMinutes * 60000)
-  return end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
-}
-
 export default function DailyPlanPage() {
-  const { buddyId } = useParams()
+  const buddyId = useBuddyId()
   const [tasks, setTasks] = useState<VBuddyTask[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!buddyId) return
-    const id = Number(buddyId)
-
-    const load = () => {
-      api.getTimeline(id).then(setTasks).finally(() => setLoading(false))
-    }
-
-    load()
-    const interval = setInterval(load, 30000)
-    return () => clearInterval(interval)
-  }, [buddyId])
+  usePoll(() => {
+    api.getTimeline(buddyId)
+      .then(setTasks)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }, 30000)
 
   if (loading) return <p>Laden...</p>
-
-  if (tasks.length === 0) {
-    return <p className={styles.empty}>Keine Aktivit&auml;ten im aktuellen Zeitfenster.</p>
-  }
 
   return (
     <div className={styles.plan}>
       <h2>Tagesplan</h2>
+
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+
+      {tasks.length === 0 && !error && (
+        <p className={styles.empty}>Keine Aktivit&auml;ten im aktuellen Zeitfenster.</p>
+      )}
+
       <div className={styles.timeline}>
         {tasks.map((task) => (
           <div
