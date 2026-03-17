@@ -19,6 +19,8 @@ public interface PlanningAiService {
             - Berücksichtige die Persönlichkeit des VBuddy
             - Berücksichtige die zuletzt erledigten Aktivitäten, um Wiederholungen zu vermeiden
             - Nutze lokale Veranstaltungen und Aktivitäten aus der Websuche als Inspiration, wenn sie zum VBuddy passen
+            - Nutze Geschäfte, Restaurants und Cafés aus der Websuche als konkrete Orte für Aktivitäten (z.B. Einkaufen, Essen gehen, Kaffee trinken)
+            - Verwende echte Namen von Geschäften, Restaurants oder Veranstaltungen aus den Suchergebnissen, wenn sie zur Aktivität passen
             - Verwende das Datumsformat 'yyyy-MM-dd HH:mm' für Startzeiten
             """)
     @UserMessage("""
@@ -36,7 +38,7 @@ public interface PlanningAiService {
             **Zuletzt erledigte Aktivitäten:**
             {{recentTasks}}
 
-            **Lokale Veranstaltungen und Aktivitäten (Websuche):**
+            **Lokale Veranstaltungen, Geschäfte und Aktivitäten (Websuche):**
             {{localActivities}}
 
             **Historischer Kontext (Hintergrundgeschichte und vergangene Erlebnisse):**

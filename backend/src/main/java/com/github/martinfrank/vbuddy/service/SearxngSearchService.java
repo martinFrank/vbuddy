@@ -46,6 +46,21 @@ public class SearxngSearchService {
         String dateText = date.format(DATE_FORMATTER);
         String query = String.format("Veranstaltungen Aktivitäten %s %s", location, dateText);
 
+        return executeSearch(query);
+    }
+
+    public List<SearchResult> searchLocalBusinesses(String location) {
+        if (!enabled) {
+            log.debug("SearXNG-Suche ist deaktiviert");
+            return Collections.emptyList();
+        }
+
+        String query = String.format("Geschäfte Restaurants Cafés Läden %s", location);
+
+        return executeSearch(query);
+    }
+
+    private List<SearchResult> executeSearch(String query) {
         log.info("SearXNG-Suche: '{}'", query);
 
         try {
@@ -59,7 +74,7 @@ public class SearxngSearchService {
             SearxngResponse response = restTemplate.getForObject(url, SearxngResponse.class);
 
             if (response == null || response.results() == null) {
-                log.warn("SearXNG hat keine Ergebnisse zurückgeliefert");
+                log.warn("SearXNG hat keine Ergebnisse zurückgeliefert für: {}", query);
                 return Collections.emptyList();
             }
 
@@ -68,18 +83,18 @@ public class SearxngSearchService {
                     .map(r -> new SearchResult(r.title(), r.url(), r.content()))
                     .toList();
 
-            log.info("SearXNG-Suche ergab {} Ergebnisse", results.size());
+            log.info("SearXNG-Suche ergab {} Ergebnisse für: {}", results.size(), query);
             return results;
 
         } catch (Exception e) {
-            log.warn("SearXNG-Suche fehlgeschlagen: {}", e.getMessage());
+            log.warn("SearXNG-Suche fehlgeschlagen für '{}': {}", query, e.getMessage());
             return Collections.emptyList();
         }
     }
 
     public String formatResultsAsText(List<SearchResult> results) {
         if (results.isEmpty()) {
-            return "Keine lokalen Veranstaltungen gefunden.";
+            return "Keine Ergebnisse gefunden.";
         }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < results.size(); i++) {
