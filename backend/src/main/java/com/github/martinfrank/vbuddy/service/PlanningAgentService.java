@@ -64,9 +64,16 @@ public class PlanningAgentService {
 
         String currentTime = LocalDateTime.now().format(FORMATTER);
 
-        List<SearchResult> searchResults = searxngSearchService.searchLocalActivities(
+        List<SearchResult> eventResults = searxngSearchService.searchLocalActivities(
                 buddy.getCurrentLocation(), LocalDate.now());
-        String localActivitiesText = searxngSearchService.formatResultsAsText(searchResults);
+        List<SearchResult> businessResults = searxngSearchService.searchLocalBusinesses(
+                buddy.getCurrentLocation());
+
+        String localEventsText = searxngSearchService.formatResultsAsText(eventResults);
+        String localBusinessesText = searxngSearchService.formatResultsAsText(businessResults);
+
+        String localActivitiesText = "## Veranstaltungen & Events\n" + localEventsText
+                + "\n\n## Geschäfte, Restaurants & Cafés\n" + localBusinessesText;
 
         String historicalContext;
         try {
