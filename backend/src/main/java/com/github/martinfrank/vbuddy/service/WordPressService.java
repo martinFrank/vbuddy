@@ -33,7 +33,7 @@ public class WordPressService {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.enabled = !url.isBlank() && !username.isBlank() && !password.isBlank();
-        this.baseApiUrl = url.isBlank() ? "" : url.replaceAll("/$", "") + "/wp-json/wp/v2";
+        this.baseApiUrl = url.isBlank() ? "" : url.replaceAll("/$", "") + "/?rest_route=/wp/v2";
 
         if (enabled) {
             String credentials = username + ":" + password;

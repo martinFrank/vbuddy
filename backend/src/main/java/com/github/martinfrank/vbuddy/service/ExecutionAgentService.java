@@ -51,6 +51,12 @@ public class ExecutionAgentService {
         task.setStartTime(LocalDateTime.now());
         taskRepository.save(task);
 
+        try {
+            embeddingService.embedTask(task);
+        } catch (Exception e) {
+            log.warn("Failed to embed started task {} for buddy {}: {}", task.getId(), buddy.getId(), e.getMessage());
+        }
+
         updateLocation(buddy, task.getLocation());
 
         return task;
@@ -96,8 +102,7 @@ public class ExecutionAgentService {
         taskRepository.save(task);
 
         try {
-            embeddingService.embedCompletedTask(buddy.getId(), task.getId(),
-                    task.getTitle(), task.getDescription(), task.getLocation());
+            embeddingService.embedTask(task);
         } catch (Exception e) {
             log.warn("Failed to embed completed task {} for buddy {}: {}", task.getId(), buddy.getId(), e.getMessage());
         }

@@ -155,7 +155,7 @@ class ExecutionAgentServiceTest {
         when(executionAiService.executeTask(anyString(), anyString(), anyString(), anyString(), anyInt(), anyString()))
                 .thenReturn(new TaskExecutionResult("Titel", "Inhalt", List.of(), "Reasoning"));
         doThrow(new RuntimeException("Embedding failed"))
-                .when(embeddingService).embedCompletedTask(anyLong(), anyLong(), anyString(), anyString(), anyString());
+                .when(embeddingService).embedTask(any(VBuddyTask.class));
 
         VBuddyTask result = executionAgentService.completeTask(1L);
 

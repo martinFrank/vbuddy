@@ -2,7 +2,6 @@ package com.github.martinfrank.vbuddy.service;
 
 import com.github.martinfrank.vbuddy.model.BackgroundStatus;
 import com.github.martinfrank.vbuddy.model.BuddyBackground;
-import com.github.martinfrank.vbuddy.model.TaskStatus;
 import com.github.martinfrank.vbuddy.model.VBuddyTask;
 import com.github.martinfrank.vbuddy.repository.BuddyBackgroundRepository;
 import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
@@ -37,14 +36,10 @@ public class EmbeddingBackfillService {
             }
         }
 
-        List<VBuddyTask> completedTasks = taskRepository.findAll().stream()
-                .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
-                .toList();
-        for (VBuddyTask task : completedTasks) {
+        List<VBuddyTask> tasks = taskRepository.findAll();
+        for (VBuddyTask task : tasks) {
             try {
-                embeddingService.embedCompletedTask(
-                        task.getBuddy().getId(), task.getId(),
-                        task.getTitle(), task.getDescription(), task.getLocation());
+                embeddingService.embedTask(task);
                 taskCount++;
             } catch (Exception e) {
                 log.error("Failed to embed task {} for buddy {}", task.getId(), task.getBuddy().getId(), e);
