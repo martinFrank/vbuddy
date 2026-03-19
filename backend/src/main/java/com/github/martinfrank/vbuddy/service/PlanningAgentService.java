@@ -129,6 +129,14 @@ public class PlanningAgentService {
                 .map(taskRepository::save)
                 .toList();
 
+        for (VBuddyTask savedTask : savedTasks) {
+            try {
+                embeddingService.embedTask(savedTask);
+            } catch (Exception e) {
+                log.warn("Failed to embed planned task {} for buddy {}: {}", savedTask.getId(), buddyId, e.getMessage());
+            }
+        }
+
         logDecision(buddy, needsText, planned);
 
         log.info("Planungs-Agent hat {} Tasks für Buddy '{}' erstellt", savedTasks.size(), buddy.getName());
