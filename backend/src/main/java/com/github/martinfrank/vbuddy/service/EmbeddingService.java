@@ -77,6 +77,11 @@ public class EmbeddingService {
         log.info("{} task {} embedded for buddy {}", statusLabel, taskId, buddyId);
     }
 
+    public void removeAllByBuddyId(Long buddyId) {
+        embeddingStore.removeAll(MetadataFilterBuilder.metadataKey("buddy_id").isEqualTo(buddyId.toString()));
+        log.info("All embeddings removed for buddy {}", buddyId);
+    }
+
     public List<String> retrieveRelevantContext(Long buddyId, String query, int maxResults) {
         Embedding queryEmbedding = embeddingModel.embed(query).content();
 

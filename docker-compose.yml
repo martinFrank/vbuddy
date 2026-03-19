@@ -14,6 +14,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - vbuddy_internal_net
+      - default # remove on prod to hide it from external access
 
   searxng:
     image: searxng/searxng:latest
@@ -22,11 +25,13 @@ services:
     volumes:
       - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
     restart: unless-stopped
+    networks:
+      - vbuddy_internal_net
 
   backend:
     build: ./backend
     ports:
-      - "8080:8080"
+      - "8080:8080" 
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/vbuddy
       SPRING_DATASOURCE_USERNAME: vbuddy
@@ -39,13 +44,25 @@ services:
         condition: service_healthy
       searxng:
         condition: service_started
+    networks:
+      - vbuddy_internal_net
+      - container_app_network
 
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "3000:80" 
     depends_on:
       - backend
+    networks:
+      - vbuddy_internal_net
+      - default # remove on prod to hide it from external access
 
 volumes:
   pgdata:
+
+networks:
+  vbuddy_internal_net:
+    internal: true
+  container_app_network:
+    external: true

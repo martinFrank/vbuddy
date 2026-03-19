@@ -38,6 +38,12 @@ public class BuddyController {
         return BuddyResponse.from(buddyService.create(request.name(), request.personality()));
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        buddyService.delete(id);
+    }
+
     @GetMapping("/{id}/needs")
     public List<NeedResponse> getNeeds(@PathVariable Long id) {
         return buddyService.getNeeds(id).stream().map(NeedResponse::from).toList();

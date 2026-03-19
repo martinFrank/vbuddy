@@ -19,6 +19,7 @@ public class BuddyService {
     private final BuddyRepository buddyRepository;
     private final NeedRepository needRepository;
     private final BackgroundAgentService backgroundAgentService;
+    private final EmbeddingService embeddingService;
 
     public List<Buddy> findAll() {
         return buddyRepository.findAll();
@@ -52,6 +53,13 @@ public class BuddyService {
         });
 
         return buddy;
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Buddy buddy = findById(id);
+        embeddingService.removeAllByBuddyId(id);
+        buddyRepository.delete(buddy);
     }
 
     public List<Need> getNeeds(Long buddyId) {
