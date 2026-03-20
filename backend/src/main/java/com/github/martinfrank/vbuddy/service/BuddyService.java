@@ -4,7 +4,6 @@ import com.github.martinfrank.vbuddy.controller.exception.EntityNotFoundExceptio
 import com.github.martinfrank.vbuddy.model.*;
 import com.github.martinfrank.vbuddy.repository.BuddyRepository;
 import com.github.martinfrank.vbuddy.repository.NeedRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -13,13 +12,20 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class BuddyService {
 
     private final BuddyRepository buddyRepository;
     private final NeedRepository needRepository;
     private final BackgroundAgentService backgroundAgentService;
     private final EmbeddingService embeddingService;
+
+    public BuddyService(BuddyRepository buddyRepository, NeedRepository needRepository,
+                         BackgroundAgentService backgroundAgentService, EmbeddingService embeddingService) {
+        this.buddyRepository = buddyRepository;
+        this.needRepository = needRepository;
+        this.backgroundAgentService = backgroundAgentService;
+        this.embeddingService = embeddingService;
+    }
 
     public List<Buddy> findAll() {
         return buddyRepository.findAll();

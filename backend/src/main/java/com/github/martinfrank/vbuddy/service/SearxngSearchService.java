@@ -1,6 +1,7 @@
 package com.github.martinfrank.vbuddy.service;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,8 +14,9 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-@Slf4j
 public class SearxngSearchService {
+
+    private static final Logger log = LoggerFactory.getLogger(SearxngSearchService.class);
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd. MMMM yyyy", Locale.GERMAN);
 

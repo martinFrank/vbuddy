@@ -2,17 +2,19 @@ package com.github.martinfrank.vbuddy.controller;
 
 import com.github.martinfrank.vbuddy.controller.dto.BlogPostResponse;
 import com.github.martinfrank.vbuddy.service.BlogService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/buddies/{buddyId}/blog-posts")
-@RequiredArgsConstructor
 public class BlogController {
 
     private final BlogService blogService;
+
+    public BlogController(BlogService blogService) {
+        this.blogService = blogService;
+    }
 
     @GetMapping
     public List<BlogPostResponse> getPosts(@PathVariable Long buddyId) {

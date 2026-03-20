@@ -4,8 +4,8 @@ import com.github.martinfrank.vbuddy.model.Buddy;
 import com.github.martinfrank.vbuddy.model.TaskStatus;
 import com.github.martinfrank.vbuddy.model.VBuddyTask;
 import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +13,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class BuddyLifecycleService {
+
+    private static final Logger log = LoggerFactory.getLogger(BuddyLifecycleService.class);
 
     private final BuddyService buddyService;
     private final VBuddyTaskRepository taskRepository;
     private final PlanningAgentService planningAgentService;
     private final ExecutionAgentService executionAgentService;
+
+    public BuddyLifecycleService(BuddyService buddyService, VBuddyTaskRepository taskRepository,
+                                  PlanningAgentService planningAgentService, ExecutionAgentService executionAgentService) {
+        this.buddyService = buddyService;
+        this.taskRepository = taskRepository;
+        this.planningAgentService = planningAgentService;
+        this.executionAgentService = executionAgentService;
+    }
 
     @Scheduled(fixedDelayString = "${vbuddy.lifecycle.interval-ms:60000}")
     public void tick() {

@@ -7,8 +7,8 @@ import com.github.martinfrank.vbuddy.controller.exception.EntityNotFoundExceptio
 import com.github.martinfrank.vbuddy.controller.exception.InvalidStateException;
 import com.github.martinfrank.vbuddy.model.*;
 import com.github.martinfrank.vbuddy.repository.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +18,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class ExecutionAgentService {
+
+    private static final Logger log = LoggerFactory.getLogger(ExecutionAgentService.class);
 
     private final ExecutionAiService executionAiService;
     private final BuddyService buddyService;
@@ -32,6 +32,23 @@ public class ExecutionAgentService {
     private final EmbeddingService embeddingService;
     private final WordPressService wordPressService;
     private final SearxngSearchService searxngSearchService;
+
+    public ExecutionAgentService(ExecutionAiService executionAiService, BuddyService buddyService,
+                                  VBuddyTaskRepository taskRepository, NeedRepository needRepository,
+                                  BuddyRepository buddyRepository, BlogPostRepository blogPostRepository,
+                                  AiDecisionLogRepository aiDecisionLogRepository, EmbeddingService embeddingService,
+                                  WordPressService wordPressService, SearxngSearchService searxngSearchService) {
+        this.executionAiService = executionAiService;
+        this.buddyService = buddyService;
+        this.taskRepository = taskRepository;
+        this.needRepository = needRepository;
+        this.buddyRepository = buddyRepository;
+        this.blogPostRepository = blogPostRepository;
+        this.aiDecisionLogRepository = aiDecisionLogRepository;
+        this.embeddingService = embeddingService;
+        this.wordPressService = wordPressService;
+        this.searxngSearchService = searxngSearchService;
+    }
 
     @Transactional
     public VBuddyTask startTask(Long taskId) {

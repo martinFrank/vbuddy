@@ -17,8 +17,8 @@ import com.github.martinfrank.vbuddy.model.BuddyBackground;
 import com.github.martinfrank.vbuddy.repository.AiDecisionLogRepository;
 import com.github.martinfrank.vbuddy.repository.BuddyBackgroundRepository;
 import com.github.martinfrank.vbuddy.repository.BuddyRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +26,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class BackgroundAgentService {
+
+    private static final Logger log = LoggerFactory.getLogger(BackgroundAgentService.class);
 
     private final BuddyRepository buddyRepository;
     private final BuddyBackgroundRepository backgroundRepository;
@@ -39,6 +39,24 @@ public class BackgroundAgentService {
     private final ScheduleEnrichmentAiService scheduleEnrichmentAiService;
     private final ObjectMapper objectMapper;
     private final EmbeddingService embeddingService;
+
+    public BackgroundAgentService(BuddyRepository buddyRepository, BuddyBackgroundRepository backgroundRepository,
+                                   AiDecisionLogRepository aiDecisionLogRepository,
+                                   BackgroundPlanningAiService backgroundPlanningAiService,
+                                   BackgroundEnrichmentAiService backgroundEnrichmentAiService,
+                                   SchedulePlanningAiService schedulePlanningAiService,
+                                   ScheduleEnrichmentAiService scheduleEnrichmentAiService,
+                                   ObjectMapper objectMapper, EmbeddingService embeddingService) {
+        this.buddyRepository = buddyRepository;
+        this.backgroundRepository = backgroundRepository;
+        this.aiDecisionLogRepository = aiDecisionLogRepository;
+        this.backgroundPlanningAiService = backgroundPlanningAiService;
+        this.backgroundEnrichmentAiService = backgroundEnrichmentAiService;
+        this.schedulePlanningAiService = schedulePlanningAiService;
+        this.scheduleEnrichmentAiService = scheduleEnrichmentAiService;
+        this.objectMapper = objectMapper;
+        this.embeddingService = embeddingService;
+    }
 
     @Async
     public void generateBackground(Long buddyId) {
