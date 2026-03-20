@@ -124,6 +124,13 @@ public class AiConfig {
     }
 
     @Bean
+    public ChatPlanAnalysisAiService chatPlanAnalysisAiService(ChatLanguageModel planningChatModel) {
+        return AiServices.builder(ChatPlanAnalysisAiService.class)
+                .chatLanguageModel(planningChatModel)
+                .build();
+    }
+
+    @Bean
     public EmbeddingModel embeddingModel(
             @Value("${vbuddy.ai.embedding.base-url}") String baseUrl,
             @Value("${vbuddy.ai.embedding.api-key}") String apiKey,

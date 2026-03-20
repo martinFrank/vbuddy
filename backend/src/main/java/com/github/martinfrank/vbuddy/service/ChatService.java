@@ -33,15 +33,17 @@ public class ChatService {
     private final VBuddyTaskRepository taskRepository;
     private final ChatLanguageModel chatChatModel;
     private final EmbeddingService embeddingService;
+    private final ChatPlanAdjustmentService chatPlanAdjustmentService;
 
     public ChatService(ChatMessageRepository chatMessageRepository, BuddyService buddyService,
                        VBuddyTaskRepository taskRepository, ChatLanguageModel chatChatModel,
-                       EmbeddingService embeddingService) {
+                       EmbeddingService embeddingService, ChatPlanAdjustmentService chatPlanAdjustmentService) {
         this.chatMessageRepository = chatMessageRepository;
         this.buddyService = buddyService;
         this.taskRepository = taskRepository;
         this.chatChatModel = chatChatModel;
         this.embeddingService = embeddingService;
+        this.chatPlanAdjustmentService = chatPlanAdjustmentService;
     }
 
     public List<ChatMessage> getHistory(Long buddyId) {
@@ -65,6 +67,12 @@ public class ChatService {
         assistantMsg.setRole(MessageRole.ASSISTANT);
         assistantMsg.setContent(response);
         chatMessageRepository.save(assistantMsg);
+
+        try {
+            chatPlanAdjustmentService.analyzeAndAdjust(buddy);
+        } catch (Exception e) {
+            log.warn("Chat-Plananalyse fehlgeschlagen für Buddy '{}': {}", buddy.getName(), e.getMessage());
+        }
 
         return assistantMsg;
     }
@@ -156,12 +164,27 @@ public class ChatService {
             sb.append("\n");
         }
 
+        List<VBuddyTask> plannedTasks = taskRepository.findByBuddyIdAndStatusOrderByStartTimeAsc(
+                buddy.getId(), TaskStatus.PLANNED);
+        if (!plannedTasks.isEmpty()) {
+            sb.append("## Deine geplanten Aktivitäten\n");
+            for (VBuddyTask t : plannedTasks) {
+                sb.append("- ").append(t.getTitle())
+                        .append(" (").append(t.getLocation()).append(", ")
+                        .append(t.getStartTime().format(TIME_FMT))
+                        .append(", ").append(t.getDurationMinutes()).append(" min)\n");
+            }
+            sb.append("\n");
+        }
+
         sb.append("## Regeln\n");
         sb.append("- Antworte natürlich und persönlich, passend zu deiner Persönlichkeit\n");
         sb.append("- Beziehe dich auf deine aktuellen Aktivitäten und Erlebnisse\n");
         sb.append("- Erwähne deinen aktuellen Ort und deine Bedürfnisse, wenn es passt\n");
         sb.append("- Halte deine Antworten gesprächig aber nicht zu lang\n");
         sb.append("- Antworte auf Deutsch\n");
+        sb.append("- Der Nutzer kann Änderungen an deinem Tagesplan vorschlagen (z.B. andere Aktivität, Task absagen, neuen Task). ")
+                .append("Reagiere darauf natürlich — du kannst zustimmen, ablehnen oder Rückfragen stellen, passend zu deiner Persönlichkeit.\n");
 
         return sb.toString();
     }
