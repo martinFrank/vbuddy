@@ -95,7 +95,7 @@ class ExecutionAgentServiceTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(buddyService.findById(1L)).thenReturn(buddy);
         when(buddyService.getNeeds(1L)).thenReturn(List.of(hungerNeed));
-        when(executionAiService.executeTask(anyString(), anyString(), anyString(), anyString(), anyInt(), anyString()))
+        when(executionAiService.executeTask(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString()))
                 .thenReturn(new TaskExecutionResult(
                         "Blog Titel",
                         "Blog Inhalt",
@@ -119,7 +119,7 @@ class ExecutionAgentServiceTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(buddyService.findById(1L)).thenReturn(buddy);
         when(buddyService.getNeeds(1L)).thenReturn(List.of(hungerNeed));
-        when(executionAiService.executeTask(anyString(), anyString(), anyString(), anyString(), anyInt(), anyString()))
+        when(executionAiService.executeTask(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString()))
                 .thenReturn(new TaskExecutionResult(
                         "Titel",
                         "Inhalt",
@@ -152,7 +152,7 @@ class ExecutionAgentServiceTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(buddyService.findById(1L)).thenReturn(buddy);
         when(buddyService.getNeeds(1L)).thenReturn(List.of());
-        when(executionAiService.executeTask(anyString(), anyString(), anyString(), anyString(), anyInt(), anyString()))
+        when(executionAiService.executeTask(anyString(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyString()))
                 .thenReturn(new TaskExecutionResult("Titel", "Inhalt", List.of(), "Reasoning"));
         doThrow(new RuntimeException("Embedding failed"))
                 .when(embeddingService).embedTask(any(VBuddyTask.class));

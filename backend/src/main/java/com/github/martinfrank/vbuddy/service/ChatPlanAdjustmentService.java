@@ -75,19 +75,25 @@ public class ChatPlanAdjustmentService {
 
         PlanAdjustmentAnalysis analysis;
         try {
+            String currentTime = LocalDateTime.now().format(FORMATTER);
             analysis = chatPlanAnalysisAiService.analyzeChatForPlanAdjustment(
+                    currentTime,
                     buddy.getPersonality(),
                     plannedTasksText,
                     recentMessagesText
             );
         } catch (Exception e) {
-            log.warn("Chat-Plan-Analyse fehlgeschlagen für Buddy '{}': {}", buddy.getName(), e.getMessage());
+            log.warn("Chat-Plan-Analyse fehlgeschlagen für Buddy '{}': {}", buddy.getName(), e.getMessage(), e);
             return;
         }
 
-        if (analysis == null || !analysis.adjustmentNeeded()) {
-            log.debug("Keine Planänderung nötig für Buddy '{}': {}",
-                    buddy.getName(), analysis != null ? analysis.reasoning() : "null");
+        log.info("Chat-Plan-Analyse für Buddy '{}': adjustmentNeeded={}, reasoning='{}', adjustments={}",
+                buddy.getName(), analysis.adjustmentNeeded(), analysis.reasoning(),
+                analysis.adjustments() != null ? analysis.adjustments().size() : 0);
+
+        if (!analysis.adjustmentNeeded()) {
+            log.info("Keine Planänderung nötig für Buddy '{}': {}",
+                    buddy.getName(), analysis.reasoning());
             return;
         }
 

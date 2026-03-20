@@ -24,6 +24,8 @@ public interface ChatPlanAnalysisAiService {
     @UserMessage("""
             Analysiere ob eine Planänderung vereinbart wurde.
 
+            **Aktuelle Uhrzeit:** {{currentTime}}
+
             **Persönlichkeit:** {{personality}}
 
             **Aktuelle geplante Tasks:**
@@ -33,6 +35,7 @@ public interface ChatPlanAnalysisAiService {
             {{recentMessages}}
             """)
     PlanAdjustmentAnalysis analyzeChatForPlanAdjustment(
+            @V("currentTime") String currentTime,
             @V("personality") String personality,
             @V("plannedTasks") String plannedTasks,
             @V("recentMessages") String recentMessages

@@ -23,21 +23,25 @@ vbuddy:
       api-key: ${PLANNING_LLM_API_KEY:ollama}
       model-name: ${PLANNING_LLM_MODEL:deepseek-r1:7b}
       temperature: 0.7
+      timeout-seconds: ${PLANNING_LLM_TIMEOUT_SECONDS:300}
     execution:
       base-url: ${EXECUTION_LLM_BASE_URL:http://localhost:11434/v1}
       api-key: ${EXECUTION_LLM_API_KEY:ollama}
       model-name: ${EXECUTION_LLM_MODEL:qwen3:8b}
       temperature: 0.7
+      timeout-seconds: ${EXECUTION_LLM_TIMEOUT_SECONDS:300}
     chat:
       base-url: ${CHAT_LLM_BASE_URL:http://localhost:11434/v1}
       api-key: ${CHAT_LLM_API_KEY:ollama}
       model-name: ${CHAT_LLM_MODEL:llama3.1:8b}
       temperature: 0.7
+      timeout-seconds: ${CHAT_LLM_TIMEOUT_SECONDS:120}
     schedule:
       base-url: ${SCHEDULE_LLM_BASE_URL:http://localhost:11434/v1}
       api-key: ${SCHEDULE_LLM_API_KEY:ollama}
       model-name: ${SCHEDULE_LLM_MODEL:qwen3:8b}
       temperature: 0.8
+      timeout-seconds: ${SCHEDULE_LLM_TIMEOUT_SECONDS:300}
     embedding:
       base-url: ${EMBEDDING_BASE_URL:http://localhost:11434/v1}
       api-key: ${EMBEDDING_API_KEY:ollama}

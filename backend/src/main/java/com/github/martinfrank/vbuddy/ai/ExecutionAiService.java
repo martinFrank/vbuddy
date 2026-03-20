@@ -12,6 +12,7 @@ public interface ExecutionAiService {
 
             Du musst:
             1. Einen Blogartikel schreiben — aus der Ich-Perspektive des VBuddy, lebendig, persönlich und passend zur Persönlichkeit.
+               Erwähne dabei die Uhrzeit im Artikel (z.B. "Um 14 Uhr bin ich losgezogen..."), damit der Blog wie ein echtes Tagebuch wirkt.
             2. Die Bedürfnisse anpassen — bestimme, welche Bedürfnisse durch die Aktivität beeinflusst werden.
 
             Regeln für Bedürfnis-Anpassungen:
@@ -24,6 +25,8 @@ public interface ExecutionAiService {
     @UserMessage("""
             Führe folgende Aktivität für den VBuddy aus:
 
+            **Aktuelle Uhrzeit:** {{currentTime}}
+
             **Persönlichkeit:** {{personality}}
 
             **Aktivität:** {{taskTitle}}
@@ -35,6 +38,7 @@ public interface ExecutionAiService {
             {{needs}}
             """)
     TaskExecutionResult executeTask(
+            @V("currentTime") String currentTime,
             @V("personality") String personality,
             @V("taskTitle") String taskTitle,
             @V("taskDescription") String taskDescription,

@@ -113,6 +113,9 @@ public class ChatService {
         sb.append("Du bist ").append(buddy.getName()).append(", ein virtueller Buddy (VBuddy). ");
         sb.append("Du antwortest immer in der Ich-Form und bleibst konsequent in deiner Rolle.\n\n");
 
+        sb.append("## Aktuelle Uhrzeit\n");
+        sb.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))).append("\n\n");
+
         sb.append("## Deine Persönlichkeit\n");
         sb.append(buddy.getPersonality()).append("\n\n");
 
