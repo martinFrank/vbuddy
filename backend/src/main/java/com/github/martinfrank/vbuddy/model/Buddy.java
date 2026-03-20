@@ -2,9 +2,6 @@ package com.github.martinfrank.vbuddy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,9 +9,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "buddy")
-@Getter
-@Setter
-@NoArgsConstructor
 public class Buddy {
 
     @Id
@@ -48,4 +42,79 @@ public class Buddy {
     @JsonIgnore
     @OneToMany(mappedBy = "buddy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> chatMessages = new ArrayList<>();
+
+    public Buddy() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPersonality() {
+        return personality;
+    }
+
+    public void setPersonality(String personality) {
+        this.personality = personality;
+    }
+
+    public String getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentLocation(String currentLocation) {
+        this.currentLocation = currentLocation;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<Need> getNeeds() {
+        return needs;
+    }
+
+    public void setNeeds(List<Need> needs) {
+        this.needs = needs;
+    }
+
+    public List<DailyPlan> getDailyPlans() {
+        return dailyPlans;
+    }
+
+    public void setDailyPlans(List<DailyPlan> dailyPlans) {
+        this.dailyPlans = dailyPlans;
+    }
+
+    public List<BlogPost> getBlogPosts() {
+        return blogPosts;
+    }
+
+    public void setBlogPosts(List<BlogPost> blogPosts) {
+        this.blogPosts = blogPosts;
+    }
+
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
+    }
+
+    public void setChatMessages(List<ChatMessage> chatMessages) {
+        this.chatMessages = chatMessages;
+    }
 }

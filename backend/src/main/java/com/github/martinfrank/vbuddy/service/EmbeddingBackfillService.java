@@ -5,20 +5,27 @@ import com.github.martinfrank.vbuddy.model.BuddyBackground;
 import com.github.martinfrank.vbuddy.model.VBuddyTask;
 import com.github.martinfrank.vbuddy.repository.BuddyBackgroundRepository;
 import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class EmbeddingBackfillService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmbeddingBackfillService.class);
 
     private final BuddyBackgroundRepository backgroundRepository;
     private final VBuddyTaskRepository taskRepository;
     private final EmbeddingService embeddingService;
+
+    public EmbeddingBackfillService(BuddyBackgroundRepository backgroundRepository,
+                                     VBuddyTaskRepository taskRepository, EmbeddingService embeddingService) {
+        this.backgroundRepository = backgroundRepository;
+        this.taskRepository = taskRepository;
+        this.embeddingService = embeddingService;
+    }
 
     public void backfillAll() {
         int backgroundCount = 0;

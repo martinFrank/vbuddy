@@ -7,7 +7,6 @@ import com.github.martinfrank.vbuddy.controller.dto.NeedResponse;
 import com.github.martinfrank.vbuddy.service.BackgroundAgentService;
 import com.github.martinfrank.vbuddy.service.BuddyService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +15,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/buddies")
-@RequiredArgsConstructor
 public class BuddyController {
 
     private final BuddyService buddyService;
     private final BackgroundAgentService backgroundAgentService;
+
+    public BuddyController(BuddyService buddyService, BackgroundAgentService backgroundAgentService) {
+        this.buddyService = buddyService;
+        this.backgroundAgentService = backgroundAgentService;
+    }
 
     @GetMapping
     public List<BuddyResponse> getAll() {

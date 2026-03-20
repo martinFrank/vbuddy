@@ -2,17 +2,11 @@ package com.github.martinfrank.vbuddy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "buddy_background")
-@Getter
-@Setter
-@NoArgsConstructor
 public class BuddyBackground {
 
     @Id
@@ -42,4 +36,71 @@ public class BuddyBackground {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    public BuddyBackground() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Buddy getBuddy() {
+        return buddy;
+    }
+
+    public void setBuddy(Buddy buddy) {
+        this.buddy = buddy;
+    }
+
+    public String getStructuredData() {
+        return structuredData;
+    }
+
+    public void setStructuredData(String structuredData) {
+        this.structuredData = structuredData;
+    }
+
+    public String getNarrativeText() {
+        return narrativeText;
+    }
+
+    public void setNarrativeText(String narrativeText) {
+        this.narrativeText = narrativeText;
+    }
+
+    public String getWeeklySchedule() {
+        return weeklySchedule;
+    }
+
+    public void setWeeklySchedule(String weeklySchedule) {
+        this.weeklySchedule = weeklySchedule;
+    }
+
+    public BackgroundStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BackgroundStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

@@ -6,7 +6,6 @@ import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
 import com.github.martinfrank.vbuddy.service.BuddyLifecycleService;
 import com.github.martinfrank.vbuddy.service.ExecutionAgentService;
 import com.github.martinfrank.vbuddy.service.PlanningAgentService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +15,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/buddies/{buddyId}/tasks")
-@RequiredArgsConstructor
 public class VBuddyTaskController {
 
     private final VBuddyTaskRepository taskRepository;
     private final PlanningAgentService planningAgentService;
     private final ExecutionAgentService executionAgentService;
     private final BuddyLifecycleService buddyLifecycleService;
+
+    public VBuddyTaskController(VBuddyTaskRepository taskRepository, PlanningAgentService planningAgentService,
+                                ExecutionAgentService executionAgentService, BuddyLifecycleService buddyLifecycleService) {
+        this.taskRepository = taskRepository;
+        this.planningAgentService = planningAgentService;
+        this.executionAgentService = executionAgentService;
+        this.buddyLifecycleService = buddyLifecycleService;
+    }
 
     @GetMapping
     public List<VBuddyTaskResponse> getTasks(@PathVariable Long buddyId) {

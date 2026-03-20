@@ -4,17 +4,19 @@ import com.github.martinfrank.vbuddy.controller.dto.ChatMessageResponse;
 import com.github.martinfrank.vbuddy.controller.dto.SendMessageRequest;
 import com.github.martinfrank.vbuddy.service.ChatService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/buddies/{buddyId}/chat")
-@RequiredArgsConstructor
 public class ChatController {
 
     private final ChatService chatService;
+
+    public ChatController(ChatService chatService) {
+        this.chatService = chatService;
+    }
 
     @GetMapping
     public List<ChatMessageResponse> getHistory(@PathVariable Long buddyId) {

@@ -2,7 +2,8 @@ package com.github.martinfrank.vbuddy.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Slf4j
 public class WordPressService {
+
+    private static final Logger log = LoggerFactory.getLogger(WordPressService.class);
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;

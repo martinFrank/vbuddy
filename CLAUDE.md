@@ -71,7 +71,6 @@ Details zur LLM- und AI-Integration sind in [AI_INTEGRATION.md](AI_INTEGRATION.m
 - langchain4j-open-ai-spring-boot-starter
 - langchain4j-pgvector (RAG mit pgvector)
 - flyway-core + flyway-database-postgresql
-- lombok
 
 ## Frontend
 

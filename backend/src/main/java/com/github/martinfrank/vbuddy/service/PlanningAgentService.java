@@ -7,8 +7,8 @@ import com.github.martinfrank.vbuddy.ai.PlannedTasks;
 import com.github.martinfrank.vbuddy.model.*;
 import com.github.martinfrank.vbuddy.repository.AiDecisionLogRepository;
 import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +21,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class PlanningAgentService {
 
+    private static final Logger log = LoggerFactory.getLogger(PlanningAgentService.class);
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final DateTimeFormatter FLEXIBLE_PARSER = new DateTimeFormatterBuilder()
             .append(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -42,6 +41,20 @@ public class PlanningAgentService {
     private final SearxngSearchService searxngSearchService;
     private final EmbeddingService embeddingService;
     private final BackgroundAgentService backgroundAgentService;
+
+    public PlanningAgentService(PlanningAiService planningAiService, EnrichmentAiService enrichmentAiService,
+                                 BuddyService buddyService, VBuddyTaskRepository taskRepository,
+                                 AiDecisionLogRepository aiDecisionLogRepository, SearxngSearchService searxngSearchService,
+                                 EmbeddingService embeddingService, BackgroundAgentService backgroundAgentService) {
+        this.planningAiService = planningAiService;
+        this.enrichmentAiService = enrichmentAiService;
+        this.buddyService = buddyService;
+        this.taskRepository = taskRepository;
+        this.aiDecisionLogRepository = aiDecisionLogRepository;
+        this.searxngSearchService = searxngSearchService;
+        this.embeddingService = embeddingService;
+        this.backgroundAgentService = backgroundAgentService;
+    }
 
     @Transactional
     public List<VBuddyTask> planTasks(Long buddyId) {
