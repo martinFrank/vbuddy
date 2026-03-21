@@ -24,7 +24,7 @@ vbuddy:
     planning:
       base-url: ${PLANNING_LLM_BASE_URL:http://localhost:11434/v1}
       api-key: ${PLANNING_LLM_API_KEY:ollama}
-      model-name: ${PLANNING_LLM_MODEL:deepseek-r1:7b}
+      model-name: ${PLANNING_LLM_MODEL:qwen3:14b}
       temperature: 0.7
       timeout-seconds: ${PLANNING_LLM_TIMEOUT_SECONDS:300}
     execution:
@@ -42,7 +42,7 @@ vbuddy:
     schedule:
       base-url: ${SCHEDULE_LLM_BASE_URL:http://localhost:11434/v1}
       api-key: ${SCHEDULE_LLM_API_KEY:ollama}
-      model-name: ${SCHEDULE_LLM_MODEL:qwen3:8b}
+      model-name: ${SCHEDULE_LLM_MODEL:qwen3:14b}
       temperature: 0.8
       timeout-seconds: ${SCHEDULE_LLM_TIMEOUT_SECONDS:300}
     embedding:
