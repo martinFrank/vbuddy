@@ -21,6 +21,8 @@ class BackgroundPlanningAiServiceLlmTest {
     void planBackground_returnsCompleteCharacterProfile() {
         PlannedBackground result = backgroundPlanningAiService.planBackground(TEST_PERSONALITY);
 
+        System.out.println(result);
+
         assertThat(result).isNotNull();
         assertThat(result.alter()).as("Alter").isBetween(18, 80);
         assertThat(result.aussehen()).as("Aussehen").isNotBlank();
@@ -41,6 +43,8 @@ class BackgroundPlanningAiServiceLlmTest {
     void planBackground_ageIsConsistentWithPersonality() {
         // Personality says 28 years old
         PlannedBackground result = backgroundPlanningAiService.planBackground(TEST_PERSONALITY);
+
+        System.out.println(result);
 
         assertThat(result.alter()).as("Age should be close to described 28")
                 .isBetween(25, 35);

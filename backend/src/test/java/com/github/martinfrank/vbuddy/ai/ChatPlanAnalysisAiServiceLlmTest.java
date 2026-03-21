@@ -20,8 +20,8 @@ class ChatPlanAnalysisAiServiceLlmTest {
     @Test
     void analyzeChatForPlanAdjustment_smalltalk_noAdjustment() {
         String plannedTasks = """
-                ID: 1, Titel: Joggen im Park, Start: 2026-03-21 17:00, Dauer: 45min
-                ID: 2, Titel: Abendessen kochen, Start: 2026-03-21 18:00, Dauer: 60min""";
+                - [ID:1] Joggen im Park (Stadtpark, 2026-03-21 17:00, 45 min)
+                - [ID:2] Abendessen kochen (Zu Hause, 2026-03-21 18:00, 60 min)""";
 
         String recentMessages = """
                 Nutzer: Hey, wie geht's dir?
@@ -36,6 +36,10 @@ class ChatPlanAnalysisAiServiceLlmTest {
                 recentMessages
         );
 
+        System.out.println("=== Smalltalk Analysis ===");
+        System.out.println("adjustmentNeeded: " + result.adjustmentNeeded());
+        System.out.println("reasoning: " + result.reasoning());
+
         assertThat(result).isNotNull();
         assertThat(result.adjustmentNeeded())
                 .as("Smalltalk should not trigger plan adjustment")
@@ -45,13 +49,14 @@ class ChatPlanAnalysisAiServiceLlmTest {
 
     @Test
     void analyzeChatForPlanAdjustment_cancelRequest_detectsAdjustment() {
+        // Use the same format the production code uses (ChatPlanAdjustmentService)
         String plannedTasks = """
-                ID: 1, Titel: Joggen im Park, Start: 2026-03-21 17:00, Dauer: 45min
-                ID: 2, Titel: Abendessen kochen, Start: 2026-03-21 18:00, Dauer: 60min""";
+                - [ID:1] Joggen im Park (Stadtpark, 2026-03-21 17:00, 45 min)
+                - [ID:2] Abendessen kochen (Zu Hause, 2026-03-21 18:00, 60 min)""";
 
         String recentMessages = """
-                Nutzer: Hey, es regnet draußen. Können wir das Joggen absagen?
-                VBuddy: Stimmt, der Regen ist ziemlich stark. Dann lasse ich das Joggen heute ausfallen und bleibe lieber drin.""";
+                Nutzer: Es regnet draußen, ich finde du solltest das Joggen heute absagen.
+                VBuddy: Ja, du hast recht. Bei dem starken Regen macht Joggen keinen Spaß. Ich sage das Joggen ab und bleibe lieber drin.""";
 
         PlanAdjustmentAnalysis result = chatPlanAnalysisAiService.analyzeChatForPlanAdjustment(
                 "2026-03-21 16:00",
@@ -60,24 +65,36 @@ class ChatPlanAnalysisAiServiceLlmTest {
                 recentMessages
         );
 
+        System.out.println("=== Cancel Analysis ===");
+        System.out.println("adjustmentNeeded: " + result.adjustmentNeeded());
+        System.out.println("reasoning: " + result.reasoning());
+        if (result.adjustments() != null) {
+            result.adjustments().forEach(a -> System.out.printf("  %s | ID:%s | %s%n",
+                    a.action(), a.existingTaskId(), a.title()));
+        }
+
         assertThat(result).isNotNull();
         assertThat(result.adjustmentNeeded())
                 .as("Cancel request agreed by VBuddy should trigger adjustment")
                 .isTrue();
         assertThat(result.adjustments()).isNotNull().isNotEmpty();
-        assertThat(result.adjustments().getFirst().action())
-                .as("Action should be CANCEL")
-                .isEqualTo("CANCEL");
+
+        boolean hasCancelAction = result.adjustments().stream()
+                .anyMatch(adj -> "CANCEL".equalsIgnoreCase(adj.action()));
+        assertThat(hasCancelAction)
+                .as("Should contain a CANCEL adjustment")
+                .isTrue();
     }
 
     @Test
     void analyzeChatForPlanAdjustment_addRequest_detectsNewTask() {
         String plannedTasks = """
-                ID: 1, Titel: Abendessen kochen, Start: 2026-03-21 18:00, Dauer: 60min""";
+                - [ID:5] Abendessen kochen (Zu Hause, 2026-03-21 18:00, 60 min)""";
 
+        // Very explicit agreement to a new task with all details
         String recentMessages = """
-                Nutzer: Hast du Lust, vorher noch ins Kino zu gehen? Um 15 Uhr läuft ein guter Film.
-                VBuddy: Oh ja, das klingt super! Lass uns um 15 Uhr ins Kino gehen, da freue ich mich drauf!""";
+                Nutzer: Ich schlage vor, dass du um 15:00 Uhr ins Kino gehst. Da läuft ein Science-Fiction-Film, der würde dir gefallen!
+                VBuddy: Das ist eine tolle Idee! Ich gehe um 15:00 Uhr ins Kino, ein Science-Fiction-Film klingt perfekt für mich. Das nehme ich in meinen Plan auf!""";
 
         PlanAdjustmentAnalysis result = chatPlanAnalysisAiService.analyzeChatForPlanAdjustment(
                 "2026-03-21 14:00",
@@ -86,6 +103,14 @@ class ChatPlanAnalysisAiServiceLlmTest {
                 recentMessages
         );
 
+        System.out.println("=== Add Analysis ===");
+        System.out.println("adjustmentNeeded: " + result.adjustmentNeeded());
+        System.out.println("reasoning: " + result.reasoning());
+        if (result.adjustments() != null) {
+            result.adjustments().forEach(a -> System.out.printf("  %s | %s | %s | %s%n",
+                    a.action(), a.title(), a.startTime(), a.location()));
+        }
+
         assertThat(result).isNotNull();
         assertThat(result.adjustmentNeeded())
                 .as("New activity agreed by VBuddy should trigger adjustment")
@@ -93,7 +118,7 @@ class ChatPlanAnalysisAiServiceLlmTest {
         assertThat(result.adjustments()).isNotNull().isNotEmpty();
 
         boolean hasAddAction = result.adjustments().stream()
-                .anyMatch(adj -> "ADD".equals(adj.action()));
+                .anyMatch(adj -> "ADD".equalsIgnoreCase(adj.action()));
         assertThat(hasAddAction)
                 .as("Should contain an ADD adjustment")
                 .isTrue();

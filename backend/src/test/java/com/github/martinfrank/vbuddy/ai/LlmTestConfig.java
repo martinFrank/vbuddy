@@ -5,6 +5,9 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 
 /**
  * Shared configuration for LLM integration tests.
@@ -15,7 +18,7 @@ public final class LlmTestConfig {
 
     private static final String BASE_URL = System.getenv().getOrDefault("LLM_TEST_BASE_URL", "http://192.168.0.251:11434/v1");
     private static final String API_KEY = System.getenv().getOrDefault("LLM_TEST_API_KEY", "ollama");
-    private static final String PLANNING_MODEL = System.getenv().getOrDefault("LLM_TEST_PLANNING_MODEL", "deepseek-r1:7b");
+    private static final String PLANNING_MODEL = System.getenv().getOrDefault("LLM_TEST_PLANNING_MODEL", "qwen3:14b");
     private static final String EXECUTION_MODEL = System.getenv().getOrDefault("LLM_TEST_EXECUTION_MODEL", "qwen3:8b");
     private static final int TIMEOUT_SECONDS = Integer.parseInt(System.getenv().getOrDefault("LLM_TEST_TIMEOUT_SECONDS", "300"));
 
@@ -46,6 +49,22 @@ public final class LlmTestConfig {
         return AiServices.builder(serviceClass)
                 .chatLanguageModel(model)
                 .build();
+    }
+
+    /**
+     * Flexible parser that accepts both 'yyyy-MM-dd HH:mm' and 'yyyy-MM-ddTHH:mm' formats,
+     * since LLMs sometimes produce ISO format with 'T' separator despite instructions.
+     */
+    public static final DateTimeFormatter FLEXIBLE_PARSER = new DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            .optionalStart().appendLiteral('T').optionalEnd()
+            .optionalStart().appendLiteral(' ').optionalEnd()
+            .append(DateTimeFormatter.ofPattern("HH:mm"))
+            .optionalStart().appendPattern(":ss").optionalEnd()
+            .toFormatter();
+
+    public static LocalDateTime parseFlexible(String dateTime) {
+        return LocalDateTime.parse(dateTime.trim(), FLEXIBLE_PARSER);
     }
 
     // Shared test data

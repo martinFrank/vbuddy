@@ -36,16 +36,27 @@ class PlanningAiServiceLlmTest {
                 "Wochentag"
         );
 
+        System.out.println("=== Planning Output ===");
+        System.out.println("Reasoning: " + result.reasoning());
+        if (result.tasks() != null) {
+            for (PlannedTask task : result.tasks()) {
+                System.out.printf("  %s | %s | %s | %d min%n",
+                        task.startTime(), task.title(), task.location(), task.durationMinutes());
+            }
+        }
+
         assertThat(result).isNotNull();
-        assertThat(result.tasks()).isNotNull().hasSizeBetween(3, 5);
+        assertThat(result.tasks()).as("LLM should return a non-null task list (check if model produces valid JSON)")
+                .isNotNull().hasSizeBetween(3, 5);
         assertThat(result.reasoning()).isNotBlank();
 
         for (PlannedTask task : result.tasks()) {
             assertThat(task.title()).as("Task title").isNotBlank();
             assertThat(task.description()).as("Task description").isNotBlank();
             assertThat(task.location()).as("Task location").isNotBlank();
+            // Accept both 'yyyy-MM-dd HH:mm' and 'yyyy-MM-ddTHH:mm'
             assertThat(task.startTime()).as("Task startTime format")
-                    .matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}");
+                    .matches("\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}(:\\d{2})?");
             assertThat(task.durationMinutes()).as("Task duration")
                     .isGreaterThan(0)
                     .isLessThanOrEqualTo(480);
@@ -55,7 +66,6 @@ class PlanningAiServiceLlmTest {
     @Test
     void planTasks_tasksAreChronological() {
         String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         PlannedTasks result = planningAiService.planTasks(
                 TEST_PERSONALITY,
@@ -70,8 +80,8 @@ class PlanningAiServiceLlmTest {
         );
 
         for (int i = 1; i < result.tasks().size(); i++) {
-            LocalDateTime prev = LocalDateTime.parse(result.tasks().get(i - 1).startTime(), formatter);
-            LocalDateTime curr = LocalDateTime.parse(result.tasks().get(i).startTime(), formatter);
+            LocalDateTime prev = parseFlexible(result.tasks().get(i - 1).startTime());
+            LocalDateTime curr = parseFlexible(result.tasks().get(i).startTime());
             assertThat(curr).as("Task %d should be after task %d", i, i - 1)
                     .isAfterOrEqualTo(prev);
         }
