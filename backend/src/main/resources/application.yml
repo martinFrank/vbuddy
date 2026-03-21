@@ -17,6 +17,9 @@ spring:
     enabled: true
 
 vbuddy:
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:admin}
   ai:
     planning:
       base-url: ${PLANNING_LLM_BASE_URL:http://localhost:11434/v1}

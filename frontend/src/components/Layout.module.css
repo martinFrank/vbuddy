@@ -35,6 +35,25 @@
   padding: var(--space-sm);
 }
 
+.spacer {
+  flex: 1;
+}
+
+.logoutButton {
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.logoutButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .main {
   flex: 1;
   overflow-y: auto;

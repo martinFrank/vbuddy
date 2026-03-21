@@ -60,6 +60,11 @@ export default function ChatPage() {
             <div className={styles.bubble}>{msg.content}</div>
           </div>
         ))}
+        {sending && (
+          <div className={`${styles.message} ${styles.assistant}`}>
+            <div className={`${styles.bubble} ${styles.thinking}`}>Moment, ich denke nach...</div>
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
       <form onSubmit={handleSend} className={styles.inputArea}>
