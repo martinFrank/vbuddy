@@ -1,5 +1,6 @@
 package com.github.martinfrank.vbuddy.service;
 
+import com.github.martinfrank.vbuddy.model.BackgroundStatus;
 import com.github.martinfrank.vbuddy.model.Buddy;
 import com.github.martinfrank.vbuddy.model.TaskStatus;
 import com.github.martinfrank.vbuddy.model.VBuddyTask;
@@ -21,13 +22,16 @@ public class BuddyLifecycleService {
     private final VBuddyTaskRepository taskRepository;
     private final PlanningAgentService planningAgentService;
     private final ExecutionAgentService executionAgentService;
+    private final BackgroundAgentService backgroundAgentService;
 
     public BuddyLifecycleService(BuddyService buddyService, VBuddyTaskRepository taskRepository,
-                                  PlanningAgentService planningAgentService, ExecutionAgentService executionAgentService) {
+                                  PlanningAgentService planningAgentService, ExecutionAgentService executionAgentService,
+                                  BackgroundAgentService backgroundAgentService) {
         this.buddyService = buddyService;
         this.taskRepository = taskRepository;
         this.planningAgentService = planningAgentService;
         this.executionAgentService = executionAgentService;
+        this.backgroundAgentService = backgroundAgentService;
     }
 
     @Scheduled(fixedDelayString = "${vbuddy.lifecycle.interval-ms:60000}")
@@ -66,6 +70,16 @@ public class BuddyLifecycleService {
         if (nextTask.isPresent()) {
             log.info("Buddy '{}' startet nächsten Task: '{}'", buddy.getName(), nextTask.get().getTitle());
             executionAgentService.startTask(nextTask.get().getId());
+            return;
+        }
+
+        BackgroundStatus bgStatus = backgroundAgentService.getBackground(buddyId)
+                .map(bg -> bg.getStatus())
+                .orElse(BackgroundStatus.PENDING);
+
+        if (bgStatus != BackgroundStatus.COMPLETED) {
+            log.info("Buddy '{}' wartet auf Background-Generierung (Status: {}) — Tagesplanung wird übersprungen",
+                    buddy.getName(), bgStatus);
             return;
         }
 

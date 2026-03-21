@@ -20,6 +20,7 @@
 12. [Architektur: Wartbarkeit & Testbarkeit](#12-architektur-wartbarkeit--testbarkeit)
 13. [Frontend-Architektur](#13-frontend-architektur)
 14. [Datenbank-Design & Migrationen](#14-datenbank-design--migrationen)
+15. [User Management & Security](#15-user-management--security)
 
 ---
 
@@ -783,7 +784,7 @@ Nginx dient als einheitlicher Entry-Point: Statische Dateien unter `/vbuddy/`, A
 
 ### Schema-Evolution via Flyway
 
-5 versionierte Migrationen dokumentieren die Schema-Entwicklung:
+6 versionierte Migrationen dokumentieren die Schema-Entwicklung:
 
 | Migration | Inhalt |
 |-----------|--------|
@@ -792,6 +793,7 @@ Nginx dient als einheitlicher Entry-Point: Statische Dateien unter `/vbuddy/`, A
 | `V3__add_vbuddy_task.sql` | Task-System mit Status-Management + Indizes |
 | `V4__add_buddy_background.sql` | Hintergrundgeschichte mit Status-Tracking |
 | `V5__add_weekly_schedule.sql` | Wochenstundenplan |
+| `V6__add_app_user.sql` | Benutzerverwaltung mit Rollen (ADMIN/USER) |
 
 ### Bedürfnissystem
 
@@ -799,6 +801,71 @@ Nginx dient als einheitlicher Entry-Point: Statische Dateien unter `/vbuddy/`, A
 - Wertebereich 0–100
 - Zeitbasiertem Anstieg (Decay Rate pro Stunde)
 - KI-gesteuerter Reduktion durch passende Aktivitäten (-30 bis +10)
+
+---
+
+## 15. User Management & Security
+
+### Authentifizierung & Autorisierung
+
+VBuddy implementiert eine **session-basierte Authentifizierung** mit Spring Security und rollenbasierter Zugriffskontrolle (RBAC):
+
+```
+                    ┌─────────────────────────────┐
+                    │       Spring Security        │
+                    │    SecurityFilterChain        │
+                    └──────────┬──────────────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              ▼                ▼                ▼
+     /api/auth/**        /api/admin/**      /api/**
+     (permitAll)         (ROLE_ADMIN)       (authenticated)
+              │                │                │
+              ▼                ▼                ▼
+        AuthController   UserController   BuddyController
+        Login/Logout     CRUD Users       Chat, Tasks, ...
+```
+
+### Rollenmodell
+
+| Rolle | Rechte |
+|-------|--------|
+| **ADMIN** | Benutzerverwaltung (anlegen, löschen), Vollzugriff auf alle Buddies |
+| **USER** | Interaktion mit VBuddies (Chat, Tagesplan, Details, AI-Log) |
+
+### Sicherheitsarchitektur
+
+**Backend (Spring Security):**
+- `AppUserDetailsService` implementiert Spring's `UserDetailsService` zur Benutzer-Authentifizierung
+- Passwörter werden mit **BCrypt** gehasht gespeichert
+- Session-basierte Authentifizierung mit `SecurityContextHolder`
+- `InitialAdminSetup` erstellt beim Start automatisch einen Admin-Benutzer aus Umgebungsvariablen (`ADMIN_USERNAME`, `ADMIN_PASSWORD`)
+
+**Frontend (React):**
+- `useAuth`-Hook als React Context stellt den Auth-State applikationsweit bereit
+- `ProtectedRoute`-Komponente schützt alle authentifizierten Routen
+- Automatische Redirect-Logik: 401-Antworten leiten zum Login weiter
+- Admin-Seite (`/admin`) ist nur für Benutzer mit Rolle ADMIN sichtbar
+
+### API-Endpunkte
+
+| Methode | Endpunkt | Zugriff | Beschreibung |
+|---------|----------|---------|-------------|
+| `POST` | `/api/auth/login` | Public | Login mit Username/Passwort |
+| `POST` | `/api/auth/logout` | Public | Session invalidieren |
+| `GET` | `/api/auth/me` | Public | Aktuellen Benutzer abfragen |
+| `GET` | `/api/users` | ADMIN | Alle Benutzer auflisten |
+| `POST` | `/api/users` | ADMIN | Neuen Benutzer anlegen |
+| `DELETE` | `/api/users/{id}` | ADMIN | Benutzer löschen |
+
+### Benutzerverwaltung (Admin-UI)
+
+Die Admin-Seite bietet eine Oberfläche zur Benutzerverwaltung:
+- Formular zum Anlegen neuer Benutzer (Username, Passwort, Rollenwahl)
+- Benutzerliste mit Rollen-Anzeige und Löschen-Funktion
+- Fehlerbehandlung bei doppelten Benutzernamen (409 Conflict)
+
+Es gibt **keine Selbstregistrierung** — neue Benutzer werden ausschließlich durch Administratoren angelegt.
 
 ---
 
@@ -819,4 +886,5 @@ Nginx dient als einheitlicher Entry-Point: Statische Dateien unter `/vbuddy/`, A
 | **Selfhosting** | Ollama mit 4 verschiedenen LLMs, pgvector für RAG, SearxNG für Suche |
 | **Architektur** | Entkoppelte AI-Schicht (Interface-basiert), Constructor Injection, DTO-Trennung, zentrales Error Handling, Graceful Degradation, testbar auf 4 Ebenen |
 | **Datenbank** | PostgreSQL 17, Flyway-Migrationen, pgvector-Extension, normalisiertes Schema |
+| **User Management** | Session-basierte Authentifizierung (Spring Security), BCrypt-Passwort-Hashing, RBAC (ADMIN/USER), Admin-UI zur Benutzerverwaltung |
 | **Frontend** | SPA mit React Router, Nginx Reverse Proxy, Polling für Echtzeit-Updates |
