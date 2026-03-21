@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 
 @Configuration
 public class AiConfig {
@@ -23,12 +24,14 @@ public class AiConfig {
             @Value("${vbuddy.ai.planning.base-url}") String baseUrl,
             @Value("${vbuddy.ai.planning.api-key}") String apiKey,
             @Value("${vbuddy.ai.planning.model-name}") String modelName,
-            @Value("${vbuddy.ai.planning.temperature}") double temperature) {
+            @Value("${vbuddy.ai.planning.temperature}") double temperature,
+            @Value("${vbuddy.ai.planning.timeout-seconds:300}") int timeoutSeconds) {
         return OpenAiChatModel.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
                 .modelName(modelName)
                 .temperature(temperature)
+                .timeout(Duration.ofSeconds(timeoutSeconds))
                 .build();
     }
 
@@ -37,12 +40,14 @@ public class AiConfig {
             @Value("${vbuddy.ai.execution.base-url}") String baseUrl,
             @Value("${vbuddy.ai.execution.api-key}") String apiKey,
             @Value("${vbuddy.ai.execution.model-name}") String modelName,
-            @Value("${vbuddy.ai.execution.temperature}") double temperature) {
+            @Value("${vbuddy.ai.execution.temperature}") double temperature,
+            @Value("${vbuddy.ai.execution.timeout-seconds:300}") int timeoutSeconds) {
         return OpenAiChatModel.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
                 .modelName(modelName)
                 .temperature(temperature)
+                .timeout(Duration.ofSeconds(timeoutSeconds))
                 .build();
     }
 
@@ -51,12 +56,14 @@ public class AiConfig {
             @Value("${vbuddy.ai.chat.base-url}") String baseUrl,
             @Value("${vbuddy.ai.chat.api-key}") String apiKey,
             @Value("${vbuddy.ai.chat.model-name}") String modelName,
-            @Value("${vbuddy.ai.chat.temperature}") double temperature) {
+            @Value("${vbuddy.ai.chat.temperature}") double temperature,
+            @Value("${vbuddy.ai.chat.timeout-seconds:300}") int timeoutSeconds) {
         return OpenAiChatModel.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
                 .modelName(modelName)
                 .temperature(temperature)
+                .timeout(Duration.ofSeconds(timeoutSeconds))
                 .build();
     }
 
@@ -100,12 +107,14 @@ public class AiConfig {
             @Value("${vbuddy.ai.schedule.base-url}") String baseUrl,
             @Value("${vbuddy.ai.schedule.api-key}") String apiKey,
             @Value("${vbuddy.ai.schedule.model-name}") String modelName,
-            @Value("${vbuddy.ai.schedule.temperature}") double temperature) {
+            @Value("${vbuddy.ai.schedule.temperature}") double temperature,
+            @Value("${vbuddy.ai.schedule.timeout-seconds:300}") int timeoutSeconds) {
         return OpenAiChatModel.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
                 .modelName(modelName)
                 .temperature(temperature)
+                .timeout(Duration.ofSeconds(timeoutSeconds))
                 .build();
     }
 
@@ -120,6 +129,13 @@ public class AiConfig {
     public ScheduleEnrichmentAiService scheduleEnrichmentAiService(ChatLanguageModel scheduleChatModel) {
         return AiServices.builder(ScheduleEnrichmentAiService.class)
                 .chatLanguageModel(scheduleChatModel)
+                .build();
+    }
+
+    @Bean
+    public ChatPlanAnalysisAiService chatPlanAnalysisAiService(ChatLanguageModel planningChatModel) {
+        return AiServices.builder(ChatPlanAnalysisAiService.class)
+                .chatLanguageModel(planningChatModel)
                 .build();
     }
 

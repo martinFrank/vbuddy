@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -103,7 +104,9 @@ public class ExecutionAgentService {
         log.info("Ausführungs-Agent verarbeitet abgeschlossenen Task '{}' für Buddy '{}'",
                 task.getTitle(), buddy.getName());
 
+        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         TaskExecutionResult result = executionAiService.executeTask(
+                currentTime,
                 buddy.getPersonality(),
                 task.getTitle(),
                 task.getDescription(),
