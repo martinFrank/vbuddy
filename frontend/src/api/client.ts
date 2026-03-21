@@ -3,8 +3,13 @@ const BASE_URL = '/vbuddy/api';
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     ...options,
   });
+  if (response.status === 401 && !path.startsWith('/auth/')) {
+    window.location.href = '/vbuddy/login';
+    throw new Error('Nicht eingeloggt');
+  }
   if (!response.ok) {
     let detail = '';
     try {
@@ -16,6 +21,28 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     throw new Error(detail || `Serverfehler (${response.status})`);
   }
   return response.json();
+}
+
+async function requestVoid(path: string, options?: RequestInit): Promise<void> {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    ...options,
+  });
+  if (response.status === 401 && !path.startsWith('/auth/')) {
+    window.location.href = '/vbuddy/login';
+    throw new Error('Nicht eingeloggt');
+  }
+  if (!response.ok) {
+    let detail = '';
+    try {
+      const body = await response.json();
+      detail = body.message || '';
+    } catch {
+      // ignore parse errors
+    }
+    throw new Error(detail || `Serverfehler (${response.status})`);
+  }
 }
 
 export interface Buddy {
@@ -87,7 +114,37 @@ export interface BuddyBackground {
   updatedAt: string;
 }
 
+export interface AuthUser {
+  username: string;
+  role: string;
+}
+
+export interface AppUserResponse {
+  id: number;
+  username: string;
+  role: string;
+  createdAt: string;
+}
+
 export const api = {
+  authLogin: (username: string, password: string) =>
+    request<AuthUser>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    }),
+  authLogout: () =>
+    requestVoid('/auth/logout', { method: 'POST' }),
+  authMe: () =>
+    request<AuthUser>('/auth/me'),
+  getUsers: () =>
+    request<AppUserResponse[]>('/users'),
+  createUser: (username: string, password: string, role: string) =>
+    request<AppUserResponse>('/users', {
+      method: 'POST',
+      body: JSON.stringify({ username, password, role }),
+    }),
+  deleteUser: (id: number) =>
+    requestVoid(`/users/${id}`, { method: 'DELETE' }),
   getBuddies: () => request<Buddy[]>('/buddies'),
   createBuddy: (name: string, personality: string) =>
     request<Buddy>('/buddies', {

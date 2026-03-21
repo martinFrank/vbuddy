@@ -45,6 +45,17 @@
   border-bottom-left-radius: var(--radius-sm);
 }
 
+.thinking {
+  font-style: italic;
+  opacity: 0.7;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.4; }
+}
+
 .inputArea {
   display: flex;
   gap: var(--space-sm);

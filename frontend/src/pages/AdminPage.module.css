@@ -1,0 +1,109 @@
+.container {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: var(--space-2xl);
+}
+
+.container h1 {
+  font-size: 2rem;
+  margin-bottom: var(--space-sm);
+}
+
+.backButton {
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-sm) var(--space-lg);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.backButton:hover {
+  background: var(--color-surface);
+}
+
+.section {
+  margin-bottom: var(--space-2xl);
+}
+
+.section h2 {
+  font-size: 1.2rem;
+  margin-bottom: var(--space-lg);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.form input,
+.form select {
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form button {
+  padding: var(--space-md);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.form button:hover {
+  background: var(--color-primary-hover);
+}
+
+.form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #e53e3e;
+  font-size: 0.9rem;
+}
+
+.userList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.userCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.role {
+  margin-left: var(--space-md);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.deleteButton {
+  padding: var(--space-sm) var(--space-lg);
+  background: none;
+  border: 1px solid #e53e3e;
+  border-radius: var(--radius-md);
+  color: #e53e3e;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.deleteButton:hover {
+  background: #e53e3e;
+  color: white;
+}
