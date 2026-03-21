@@ -90,6 +90,7 @@ Analysiert Chatverläufe auf vereinbarte Planänderungen (CANCEL, UPDATE, ADD).
 | deepseek-r1:7b | Korrekt erkannt, aber Reasoning teils unklar |
 | qwen3:8b | "Konversation besteht aus Smalltalk und positiven Rückfragen" |
 | deepseek-r1:14b | "Der Nutzer hat keine explizite Änderung vorgeschlagen. Die Gespräche bestehen aus Smalltalk." |
+| qwen3:14b | "Der Nutzer fragt nur nach dem Wohlbefinden und wünscht viel Spaß beim bestehenden Joggen. Es gibt keine explizite Vorschläge zur Änderung des Tagesplans." |
 
 **Cancel-Request:**
 
