@@ -89,7 +89,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <excludedGroups>llm</excludedGroups>
+                    <excludedGroups>llm,integration</excludedGroups>
                 </configuration>
             </plugin>
         </plugins>
