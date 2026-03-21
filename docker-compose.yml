@@ -27,6 +27,7 @@ services:
     restart: unless-stopped
     networks:
       - vbuddy_internal_net
+      - default # remove on prod to hide it from external access
 
   backend:
     build: ./backend
