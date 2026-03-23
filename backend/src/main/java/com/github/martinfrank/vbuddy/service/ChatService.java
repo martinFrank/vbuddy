@@ -1,6 +1,7 @@
 package com.github.martinfrank.vbuddy.service;
 
 import com.github.martinfrank.vbuddy.model.*;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import com.github.martinfrank.vbuddy.repository.ChatMessageRepository;
 import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
 import dev.langchain4j.data.message.AiMessage;
@@ -114,7 +115,7 @@ public class ChatService {
         sb.append("Du antwortest immer in der Ich-Form und bleibst konsequent in deiner Rolle.\n\n");
 
         sb.append("## Aktuelle Uhrzeit\n");
-        sb.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))).append("\n\n");
+        sb.append(UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))).append("\n\n");
 
         sb.append("## Deine Persönlichkeit\n");
         sb.append(buddy.getPersonality()).append("\n\n");

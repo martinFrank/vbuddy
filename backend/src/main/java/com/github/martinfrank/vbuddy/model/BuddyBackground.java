@@ -1,6 +1,7 @@
 package com.github.martinfrank.vbuddy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -32,10 +33,10 @@ public class BuddyBackground {
     private BackgroundStatus status = BackgroundStatus.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = UtcDateTimeUtil.now();
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt = UtcDateTimeUtil.now();
 
     public BuddyBackground() {
     }

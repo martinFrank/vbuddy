@@ -6,17 +6,17 @@
 
 ## Inhaltsverzeichnis
 
-1. [AI-Anwendung: Mehrstufige Agenten-Prozesse](#1-ai-anwendung-mehrstufige-agenten-prozesse)
+1. [Multi-Agent-Orchestrierung](#1-multi-agent-orchestrierung)
 2. [Autonome Tagesplanung](#2-autonome-tagesplanung)
 3. [Interaktive Tagesplanung via Chat](#3-interaktive-tagesplanung-via-chat)
 4. [RAG: Retrieval Augmented Generation](#4-rag-retrieval-augmented-generation)
-5. [AI-Wissen: Verschiedene LLMs für unterschiedliche Zwecke](#5-ai-wissen-verschiedene-llms-für-unterschiedliche-zwecke)
-6. [AI-Tool-Integration: Websuche](#6-ai-tool-integration-websuche)
-7. [AI-Anbindung an externe Systeme: WordPress-Blog](#7-ai-anbindung-an-externe-systeme-wordpress-blog)
-8. [Test Layer: Testbare AI-Anwendung](#8-test-layer-testbare-ai-anwendung)
+5. [Modellstrategie: Aufgabenspezifische LLM-Selektion](#5-modellstrategie-aufgabenspezifische-llm-selektion)
+6. [Tool-Augmented Generation: Websuche](#6-tool-augmented-generation-websuche)
+7. [Systemintegration: WordPress-Publishing-Pipeline](#7-systemintegration-wordpress-publishing-pipeline)
+8. [Teststrategie: Qualitätssicherung für KI-Komponenten](#8-teststrategie-qualitätssicherung-für-ki-komponenten)
 9. [Technologie-Stack](#9-technologie-stack)
-10. [Cloud-Native Entwicklung: Dockerisierung](#10-cloud-native-entwicklung-dockerisierung)
-11. [Selfhosting: Eigene LLMs mit Ollama](#11-selfhosting-eigene-llms-mit-ollama)
+10. [Cloud-Native Deployment: Containerisierung](#10-cloud-native-deployment-containerisierung)
+11. [On-Premise LLM-Betrieb mit Ollama](#11-on-premise-llm-betrieb-mit-ollama)
 12. [Architektur: Wartbarkeit & Testbarkeit](#12-architektur-wartbarkeit--testbarkeit)
 13. [Frontend-Architektur](#13-frontend-architektur)
 14. [Datenbank-Design & Migrationen](#14-datenbank-design--migrationen)
@@ -24,9 +24,9 @@
 
 ---
 
-## 1. AI-Anwendung: Mehrstufige Agenten-Prozesse
+## 1. Multi-Agent-Orchestrierung
 
-VBuddy setzt auf **mehrstufige, orchestrierte Agenten-Pipelines**, in denen verschiedene KI-Schritte aufeinander aufbauen und Zwischenergebnisse weiterverarbeitet werden.
+VBuddy basiert auf **mehrstufigen, orchestrierten Agenten-Pipelines**, in denen spezialisierte LLM-Aufrufe sequenziell aufeinander aufbauen und Zwischenergebnisse als Kontext in nachfolgende Verarbeitungsstufen einfließen.
 
 ### Background-Pipeline (4 Stufen)
 
@@ -56,12 +56,12 @@ Die tägliche Aktivitätsplanung orchestriert drei Agenten:
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│                  Kontext-Sammlung                     │
+│                  Kontext-Sammlung                    │
 │  Persönlichkeit + Bedürfnisse + Websuche + RAG       │
 └───────────────────────┬──────────────────────────────┘
                         ▼
 ┌──────────────────────────────────────────────────────┐
-│              Planning Agent (deepseek-r1:7b)          │
+│              Planning Agent (deepseek-r1:7b)         │
 │  → PlannedTasks: 3-5 Aktivitäten + Reasoning         │
 └───────────────────────┬──────────────────────────────┘
                         ▼
@@ -71,7 +71,7 @@ Die tägliche Aktivitätsplanung orchestriert drei Agenten:
 └───────────────────────┬──────────────────────────────┘
                         ▼
 ┌──────────────────────────────────────────────────────┐
-│           Execution Agent (qwen3:8b)                  │
+│           Execution Agent (qwen3:8b)                 │
 │  → Blogartikel + Bedürfnis-Anpassungen + Reasoning   │
 └──────────────────────────────────────────────────────┘
 ```
@@ -86,20 +86,20 @@ Der VBuddy führt ein eigenständiges Leben — ohne dass der Nutzer eingreifen 
 
 ```
                     ┌───────────────────────────┐
-                    │   @Scheduled Tick (60s)    │
-                    │   für jeden Buddy          │
+                    │   @Scheduled Tick (60s)   │
+                    │   für jeden Buddy         │
                     └─────────────┬─────────────┘
                                   ▼
                     ┌───────────────────────────┐
-                    │  Aktiver Task vorhanden?   │
+                    │  Aktiver Task vorhanden?  │
                     └─────┬───────────┬─────────┘
                       Ja  │           │  Nein
                           ▼           ▼
                ┌──────────────┐  ┌───────────────────────┐
                │ Abgelaufen?  │  │ Geplanter Task da?    │
                └──┬───────┬───┘  └───┬──────────────┬────┘
-                Ja│     Nein│      Ja │            Nein│
-                  ▼         ▼        ▼                ▼
+                Ja│   Nein│       Ja │          Nein│
+                  ▼       ▼          ▼              ▼
          ┌────────────┐  Warte  ┌──────────┐  ┌──────────────┐
          │ Execution  │         │ Start    │  │ Planning     │
          │ Agent      │         │ Task     │  │ Agent        │
@@ -147,7 +147,7 @@ Der Chat-System-Prompt wird bei jeder Nachricht **dynamisch aus dem aktuellen Zu
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    System-Prompt (dynamisch)                 │
+│                    System-Prompt (dynamisch)                │
 ├─────────────────────────────────────────────────────────────┤
 │  Rollenanweisung    "Du bist Max, ein virtueller Buddy..."  │
 │  Aktuelle Uhrzeit   2026-03-21 14:30                        │
@@ -158,7 +158,7 @@ Der Chat-System-Prompt wird bei jeder Nachricht **dynamisch aus dem aktuellen Zu
 │  Aktuelle Aktivität "Joggen im Stadtpark (seit 14:00)"      │
 │  Letzte 5 Tasks     Erledigte Aktivitäten des Tages         │
 │  Geplante Tasks     Kommende Aktivitäten mit Zeiten         │
-│  Regeln             Sprache, Planänderungs-Handling          │
+│  Regeln             Sprache, Planänderungs-Handling         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -174,12 +174,12 @@ Nach jeder Chat-Nachricht wird automatisch ein **Analyse-Agent** ausgelöst, der
 │ "Lass uns    │───>│ "Super Idee, │───>│ Agent (deepseek-r1)  │
 │  ins Kino!"  │    │  gerne!"     │    │                      │
 └──────────────┘    └──────────────┘    └──────────┬───────────┘
-                                                    │
-                                          ┌─────────▼──────────┐
-                                          │ adjustmentNeeded?   │
-                                          └──┬──────────────┬───┘
-                                         Ja  │              │ Nein
-                                             ▼              ▼
+                                                   │
+                                         ┌─────────▼──────────┐
+                                         │ adjustmentNeeded?  │
+                                         └──┬──────────────┬──┘
+                                         Ja │              │ Nein
+                                            ▼              ▼
                                     ┌────────────┐     Keine Aktion
                                     │ Anpassungen│
                                     │ anwenden:  │
@@ -244,11 +244,11 @@ Auch über den Chat geänderte oder abgesagte Tasks (`ABORTED`) werden embedded 
 RAG-Kontext wird an **zwei zentralen Stellen** in den LLM-Prompt injiziert:
 
 ```
-┌───────────────────────────────────────────────────────────────────┐
-│                        pgvector (768d)                            │
-│                                                                   │
+┌──────────────────────────────────────────────────────────────────┐
+│                        pgvector (768d)                           │
+│                                                                  │
 │  Background-Embeddings ──────────────────────────────────────┐   │
-│  Task-Embeddings (PLANNED, COMPLETED, ABORTED) ─────────┐   │   │
+│  Task-Embeddings (PLANNED, COMPLETED, ABORTED) ──────────┐   │   │
 │                                                          │   │   │
 └──────────────────────────────────────────────────────────┼───┼───┘
                                                            │   │
@@ -304,9 +304,9 @@ EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
 
 ---
 
-## 5. AI-Wissen: Verschiedene LLMs für unterschiedliche Zwecke
+## 5. Modellstrategie: Aufgabenspezifische LLM-Selektion
 
-VBuddy nutzt bewusst **verschiedene LLM-Modelle** für verschiedene Aufgabentypen — basierend auf den Stärken der jeweiligen Modelle:
+VBuddy setzt gezielt **unterschiedliche LLM-Modelle** für spezifische Aufgabenprofile ein — die Modellwahl erfolgt anhand der jeweiligen Stärken in Bezug auf Reasoning, Textgenerierung und Dialogfähigkeit:
 
 | Aufgabe | Modell | Stärke | Temperature |
 |---------|--------|--------|-------------|
@@ -348,9 +348,9 @@ public interface PlanningAiService {
 
 ---
 
-## 6. AI-Tool-Integration: Websuche
+## 6. Tool-Augmented Generation: Websuche
 
-VBuddy integriert eine **SearxNG-Metasuchmaschine** als AI-Tool, um den Agenten Zugang zu aktuellen, lokalen Informationen zu geben.
+VBuddy integriert eine **SearxNG-Metasuchmaschine** als Tool-Augmentation, um den Agenten Zugriff auf aktuelle, lokale Informationen bereitzustellen.
 
 ### Architektur
 
@@ -388,7 +388,7 @@ Der Planning Agent kann dadurch **echte Ortsnamen, Veranstaltungen und Geschäft
 
 ---
 
-## 7. AI-Anbindung an externe Systeme: WordPress-Blog
+## 7. Systemintegration: WordPress-Publishing-Pipeline
 
 Der VBuddy veröffentlicht seine Blogartikel automatisch auf einem echten WordPress-Blog unter `https://elitegames.v6.rocks/vbuddy-blog/`.
 
@@ -418,9 +418,9 @@ Execution Agent
 
 ---
 
-## 8. Test Layer: Testbare AI-Anwendung
+## 8. Teststrategie: Qualitätssicherung für KI-Komponenten
 
-VBuddy implementiert eine **dreistufige Teststrategie**, die sowohl klassische Unit-Tests als auch LLM-Output-Integrationstests umfasst.
+VBuddy implementiert eine **dreistufige Teststrategie**, die klassische Unit-Tests, LLM-Output-Validierung und Service-Integrationstests umfasst.
 
 ### Teststufen
 
@@ -433,11 +433,11 @@ VBuddy implementiert eine **dreistufige Teststrategie**, die sowohl klassische U
 │  • Keine externen Abhängigkeiten                                │
 │  • Laufen bei jedem Build                                       │
 ├─────────────────────────────────────────────────────────────────┤
-│  Stufe 2: LLM Integration Tests         mvn test -Dgroups=llm  │
+│  Stufe 2: LLM Integration Tests         mvn test -Dgroups=llm   │
 │  ──────────────────────────────                                 │
 │  • Testen den tatsächlichen LLM-Output                          │
 │  • Strukturvalidierung (Felder, Formate, Wertebereiche)         │
-│  • Plausibilitätsprüfung (Hunger → Essen, Ich-Perspektive)     │
+│  • Plausibilitätsprüfung (Hunger → Essen, Ich-Perspektive)      │
 │  • Konsistenzprüfung (chronologische Reihenfolge, 24h-Abdeckung)│
 │  • Benötigen laufendes Ollama                                   │
 ├─────────────────────────────────────────────────────────────────┤
@@ -516,7 +516,7 @@ LLM- und Integration-Tests sind aus dem regulären Build ausgeschlossen:
 
 ---
 
-## 10. Cloud-Native Entwicklung: Dockerisierung
+## 10. Cloud-Native Deployment: Containerisierung
 
 Die gesamte Anwendung ist als **Docker-Compose-Stack** konzipiert — ein `docker compose up --build` startet alle Services.
 
@@ -529,23 +529,23 @@ Die gesamte Anwendung ist als **Docker-Compose-Stack** konzipiert — ein `docke
                     │   :3000      │
                     └──────┬───────┘
                            │
-              ┌────────────┼────────────────────┐
-              │ /vbuddy/   │ /vbuddy/api/        │
-              │ (Static)   │ (Proxy → Backend)   │
-              │            ▼                     │
-              │    ┌──────────────┐              │
-              │    │   Backend    │              │
-              │    │ (Spring:8080)│              │
-              │    │   :8080      │              │
-              │    └──┬───┬───┬──┘              │
-              │       │   │   │                  │
-         ┌────┘   ┌───┘   │   └───┐              │
-         ▼        ▼       ▼       ▼              │
-    ┌─────────┐ ┌──────┐ ┌──────┐ ┌───────────┐ │
-    │Postgres │ │Ollama│ │SearxNG│ │ WordPress │ │
-    │pgvector │ │(ext.)│ │ :8888 │ │  (extern) │ │
-    │ :5432   │ │      │ │      │ │           │ │
-    └─────────┘ └──────┘ └──────┘ └───────────┘ │
+              ┌────────────┼  
+              │ /vbuddy/   │ /vbuddy/api/        
+              │ (Static)   │ (Proxy → Backend)  
+              │            ▼                     
+              │    ┌──────────────┐              
+              │    │   Backend    │              
+              │    │ (Spring:8080)│              
+              │    │   :8080      │              
+              │    └──┬───┬───┬───┘               
+              │       │   │   │                  
+         ┌────┘   ┌───┘   │   └────────┐              
+         ▼        ▼       ▼            ▼              
+    ┌─────────┐ ┌──────┐ ┌───────┐ ┌───────────┐ 
+    │Postgres │ │Ollama│ │SearxNG│ │ WordPress │ 
+    │pgvector │ │(ext.)│ │ :8888 │ │  (extern) │ 
+    │ :5432   │ │      │ │       │ │           │ 
+    └─────────┘ └──────┘ └───────┘ └───────────┘ 
 ```
 
 ### Multi-Stage Dockerfiles
@@ -571,9 +571,9 @@ networks:
 
 ---
 
-## 11. Selfhosting: Eigene LLMs mit Ollama
+## 11. On-Premise LLM-Betrieb mit Ollama
 
-VBuddy läuft vollständig mit **selfhosted LLMs** — keine Cloud-APIs, keine Kosten pro Token, volle Datenkontrolle.
+VBuddy läuft vollständig mit **lokal betriebenen LLMs** — keine Cloud-APIs, keine tokenbasierte Abrechnung, volle Datenhoheit.
 
 ### Ollama-Setup
 
@@ -588,13 +588,13 @@ vbuddy:
       model-name: ${PLANNING_LLM_MODEL:deepseek-r1:7b}
 ```
 
-### Vorteile des Selfhosting-Ansatzes
+### Vorteile des On-Premise-Betriebs
 
-- **Keine API-Kosten** — unbegrenzte Anfragen ohne Token-basierte Abrechnung
-- **Datenschutz** — alle Daten bleiben im lokalen Netzwerk
-- **Modell-Flexibilität** — einfacher Wechsel zwischen Modellen per Konfiguration
-- **Offline-Fähigkeit** — die Anwendung funktioniert ohne Internetverbindung (abgesehen von Websuche und WordPress)
-- **Reproduzierbarkeit** — gleiche Modellversionen, keine unangekündigten Provider-Updates
+- **Kostenkontrolle** — unbegrenzte Inferenz ohne tokenbasierte Abrechnung
+- **Datenhoheit** — sämtliche Daten verbleiben im lokalen Netzwerk
+- **Modell-Flexibilität** — Modellwechsel ausschließlich über Konfiguration, ohne Code-Änderungen
+- **Offline-Fähigkeit** — die Anwendung ist ohne Internetverbindung lauffähig (ausgenommen Websuche und WordPress-Publishing)
+- **Reproduzierbarkeit** — deterministische Modellversionen, keine unkontrollierten Provider-seitigen Updates
 
 ---
 
@@ -629,21 +629,21 @@ Die Backend-Architektur ist konsequent auf **lose Kopplung, klare Verantwortlich
 Das zentrale Architekturprinzip: **AI Services sind reine Interfaces** — keine Implementierungsklassen, keine Vererbung. LangChain4j generiert die Implementierung zur Laufzeit, die `AiConfig` bindet sie als Spring Beans:
 
 ```
-┌─────────────────────┐        ┌─────────────────────┐
+┌──────────────────────┐        ┌──────────────────────┐
 │  PlanningAgentService│        │  PlanningAiService   │
 │  (Business-Logik)    │───────>│  (Interface)         │
 │                      │        │  @SystemMessage      │
 │  • Kontext sammeln   │        │  @UserMessage        │
 │  • Fehler behandeln  │        │  → PlannedTasks      │
-│  • Ergebnis speichern│        └──────────┬──────────┘
+│  • Ergebnis speichern│        └──────────┬───────────┘
 └──────────────────────┘                   │
                                            │ AiServices.builder()
                                            ▼
-                                ┌─────────────────────┐
+                                ┌──────────────────────┐
                                 │  ChatLanguageModel   │
                                 │  (OpenAI-kompatibel) │
                                 │  → Ollama / OpenAI   │
-                                └─────────────────────┘
+                                └──────────────────────┘
 ```
 
 **Warum das wichtig ist:**
@@ -734,7 +734,7 @@ Die Architektur ermöglicht Tests auf jeder Schicht — mit unterschiedlichem Sc
 ├─────────────────────────────────────────────────────────────────────┤
 │  Service-Tests (@ExtendWith(MockitoExtension.class))                │
 │  • Alle Abhängigkeiten gemockt (AI, DB, externe Services)           │
-│  • Testen: Orchestrierung, Fehlerbehandlung, Zustandsübergänge     │
+│  • Testen: Orchestrierung, Fehlerbehandlung, Zustandsübergänge      │
 │  • Kein Spring, kein Netzwerk                                       │
 │                                                                     │
 │  Beispiel: completeTask() bei Embedding-Fehler → Task trotzdem      │
@@ -743,16 +743,16 @@ Die Architektur ermöglicht Tests auf jeder Schicht — mit unterschiedlichem Sc
 │  LLM-Integration-Tests (standalone, @Tag("llm"))                    │
 │  • AI Service Interfaces direkt über AiServices.builder()           │
 │  • Kein Spring, keine DB — nur ChatLanguageModel + Interface        │
-│  • Testen: LLM-Output-Struktur, Formate, Plausibilität             │
+│  • Testen: LLM-Output-Struktur, Formate, Plausibilität              │
 │                                                                     │
 │  Beispiel: PlanningAiService → PlannedTasks hat 3-5 Tasks,          │
 │            chronologisch, gültiges Datumsformat                     │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Service-Integration-Tests (standalone, @Tag("integration"))        │
 │  • Externe Services direkt instanziiert (kein Spring)               │
-│  • Testen: Erreichbarkeit, Ergebnisqualität                        │
+│  • Testen: Erreichbarkeit, Ergebnisqualität                         │
 │                                                                     │
-│  Beispiel: SearxngSearchService → Ergebnisse mit Titel + URL       │
+│  Beispiel: SearxngSearchService → Ergebnisse mit Titel + URL        │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -812,8 +812,8 @@ VBuddy implementiert eine **session-basierte Authentifizierung** mit Spring Secu
 
 ```
                     ┌─────────────────────────────┐
-                    │       Spring Security        │
-                    │    SecurityFilterChain        │
+                    │       Spring Security       │
+                    │    SecurityFilterChain      │
                     └──────────┬──────────────────┘
                                │
               ┌────────────────┼────────────────┐
@@ -873,18 +873,18 @@ Es gibt **keine Selbstregistrierung** — neue Benutzer werden ausschließlich d
 
 | Disziplin | Umsetzung in VBuddy |
 |-----------|---------------------|
-| **AI-Anwendung** | Mehrstufige Agenten-Pipelines (4-stufige Background-Pipeline, 3-stufige Task-Pipeline) |
+| **Multi-Agent-Orchestrierung** | Mehrstufige Agenten-Pipelines (4-stufige Background-Pipeline, 3-stufige Task-Pipeline) |
 | **Autonome Planung** | Lifecycle-Loop mit automatischer Planung, Ausführung, Blog-Veröffentlichung und Bedürfnis-Anpassung |
 | **Interaktive Planung** | Chat-basierte Planänderungen (CANCEL, UPDATE, ADD) mit Analyse-Agent und False-Positive-Schutz |
-| **RAG** | pgvector-Embeddings auf 2 Ebenen (Background + Tasks), Abruf in Chat (Top 5) und Planung (Top 10) |
-| **AI-Wissen** | Gezielte Modellwahl (Reasoning vs. Creative vs. Chat), Structured Output, Prompt Engineering |
-| **AI-Tool-Integration** | SearxNG-Websuche als Kontextquelle für Agenten |
-| **AI-Externe Systeme** | WordPress REST API für automatische Blog-Veröffentlichung mit Bildern |
-| **Test Layer** | Dreistufig: Unit → LLM-Integration → Service-Integration, testbare AI-Architektur |
+| **Retrieval Augmented Generation** | pgvector-Embeddings auf 2 Ebenen (Background + Tasks), Abruf in Chat (Top 5) und Planung (Top 10) |
+| **Modellstrategie** | Aufgabenspezifische LLM-Selektion (Reasoning vs. Creative vs. Conversational), Structured Output, Prompt Engineering |
+| **Tool-Augmented Generation** | SearxNG-Websuche als Kontextquelle für Agenten |
+| **Systemintegration** | WordPress REST API für automatische Blog-Veröffentlichung mit Bildern |
+| **Teststrategie** | Dreistufig: Unit → LLM-Integration → Service-Integration, testbare KI-Architektur |
 | **Technologie-Stack** | Java 21, Spring Boot 3.4, React 19, TypeScript 5.7, Vite 6, LangChain4j |
-| **Cloud-Native** | Docker Compose, Multi-Stage Builds, Netzwerk-Isolation, Healthchecks |
-| **Selfhosting** | Ollama mit 4 verschiedenen LLMs, pgvector für RAG, SearxNG für Suche |
-| **Architektur** | Entkoppelte AI-Schicht (Interface-basiert), Constructor Injection, DTO-Trennung, zentrales Error Handling, Graceful Degradation, testbar auf 4 Ebenen |
+| **Cloud-Native Deployment** | Docker Compose, Multi-Stage Builds, Netzwerk-Isolation, Healthchecks |
+| **On-Premise LLM-Betrieb** | Ollama mit 4 verschiedenen LLMs, pgvector für RAG, SearxNG für Suche |
+| **Softwarearchitektur** | Entkoppelte KI-Schicht (Interface-basiert), Constructor Injection, DTO-Trennung, zentrales Error Handling, Graceful Degradation, testbar auf 4 Ebenen |
 | **Datenbank** | PostgreSQL 17, Flyway-Migrationen, pgvector-Extension, normalisiertes Schema |
-| **User Management** | Session-basierte Authentifizierung (Spring Security), BCrypt-Passwort-Hashing, RBAC (ADMIN/USER), Admin-UI zur Benutzerverwaltung |
+| **Authentifizierung & Autorisierung** | Session-basierte Authentifizierung (Spring Security), BCrypt-Passwort-Hashing, RBAC (ADMIN/USER), Admin-UI zur Benutzerverwaltung |
 | **Frontend** | SPA mit React Router, Nginx Reverse Proxy, Polling für Echtzeit-Updates |

@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -22,7 +24,7 @@ class PlanningAiServiceLlmTest {
 
     @Test
     void planTasks_returnsValidStructuredOutput() {
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String currentTime = UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
         PlannedTasks result = planningAiService.planTasks(
                 TEST_PERSONALITY,
@@ -65,7 +67,7 @@ class PlanningAiServiceLlmTest {
 
     @Test
     void planTasks_tasksAreChronological() {
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String currentTime = UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
         PlannedTasks result = planningAiService.planTasks(
                 TEST_PERSONALITY,
@@ -89,7 +91,7 @@ class PlanningAiServiceLlmTest {
 
     @Test
     void planTasks_highHunger_includesFoodRelatedActivity() {
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String currentTime = UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         String highHungerNeeds = """
                 HUNGER: 95/100
                 BOREDOM: 10/100

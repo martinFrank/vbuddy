@@ -16,5 +16,8 @@ public record PlannedTask(
         String startTime,
 
         @Description("Dauer der Aktivität in Minuten")
-        int durationMinutes
+        int durationMinutes,
+
+        @Description("URL der Websuche-Quelle, falls die Aktivität auf einem Suchergebnis basiert. Null, wenn keine Quelle verwendet wurde.")
+        String sourceUrl
 ) {}

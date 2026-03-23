@@ -1,6 +1,7 @@
 package com.github.martinfrank.vbuddy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public class Buddy {
     private String currentLocation = "Zu Hause";
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = UtcDateTimeUtil.now();
 
     @JsonIgnore
     @OneToMany(mappedBy = "buddy", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -65,6 +65,9 @@ export default function DailyPlanPage() {
               <div className={styles.meta}>
                 <span>&#128205; {task.location}</span>
                 <span>&#9202; {task.durationMinutes} min</span>
+                {task.sourceUrl && (
+                  <a href={task.sourceUrl} target="_blank" rel="noopener noreferrer">&#128279; Quelle</a>
+                )}
               </div>
             </div>
           </div>

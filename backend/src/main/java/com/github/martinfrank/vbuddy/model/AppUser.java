@@ -1,5 +1,6 @@
 package com.github.martinfrank.vbuddy.model;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -21,7 +22,7 @@ public class AppUser {
     private String role = "USER";
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = UtcDateTimeUtil.now();
 
     public Long getId() {
         return id;
