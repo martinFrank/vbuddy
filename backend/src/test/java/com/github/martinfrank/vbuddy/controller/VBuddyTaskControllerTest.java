@@ -16,6 +16,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -134,7 +136,7 @@ class VBuddyTaskControllerTest {
         task.setTitle(title);
         task.setDescription("Beschreibung");
         task.setLocation("Zu Hause");
-        task.setStartTime(LocalDateTime.now());
+        task.setStartTime(UtcDateTimeUtil.now());
         task.setDurationMinutes(30);
         task.setStatus(status);
         return task;

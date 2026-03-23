@@ -112,6 +112,9 @@ export default function NeedsPage() {
           <div className={styles.taskMeta}>
             <span>&#128205; {currentTask.location}</span>
             <span>&#9202; {currentTask.durationMinutes} min</span>
+            {currentTask.sourceUrl && (
+              <a href={currentTask.sourceUrl} target="_blank" rel="noopener noreferrer">&#128279; Quelle</a>
+            )}
             <span className={styles.taskRemaining}>
               {formatRemainingMinutes(currentTask.startTime, currentTask.durationMinutes)} min verbleibend
             </span>

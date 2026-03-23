@@ -7,6 +7,7 @@ import com.github.martinfrank.vbuddy.controller.exception.EntityNotFoundExceptio
 import com.github.martinfrank.vbuddy.controller.exception.InvalidStateException;
 import com.github.martinfrank.vbuddy.model.*;
 import com.github.martinfrank.vbuddy.repository.*;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,7 @@ public class ExecutionAgentService {
                 buddy.getName(), task.getTitle(), task.getDurationMinutes(), task.getLocation());
 
         task.setStatus(TaskStatus.IN_PROGRESS);
-        task.setStartTime(LocalDateTime.now());
+        task.setStartTime(UtcDateTimeUtil.now());
         taskRepository.save(task);
 
         try {
@@ -82,7 +83,7 @@ public class ExecutionAgentService {
 
     public boolean isTaskFinished(VBuddyTask task) {
         LocalDateTime endTime = task.getStartTime().plusMinutes(task.getDurationMinutes());
-        return LocalDateTime.now().isAfter(endTime);
+        return UtcDateTimeUtil.now().isAfter(endTime);
     }
 
     @Transactional
@@ -104,7 +105,7 @@ public class ExecutionAgentService {
         log.info("Ausführungs-Agent verarbeitet abgeschlossenen Task '{}' für Buddy '{}'",
                 task.getTitle(), buddy.getName());
 
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String currentTime = UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         TaskExecutionResult result = executionAiService.executeTask(
                 currentTime,
                 buddy.getPersonality(),
@@ -175,7 +176,7 @@ public class ExecutionAgentService {
                 double newValue = Math.max(0, Math.min(need.getMaxValue(),
                         need.getCurrentValue() + adjustment.change()));
                 need.setCurrentValue(newValue);
-                need.setUpdatedAt(LocalDateTime.now());
+                need.setUpdatedAt(UtcDateTimeUtil.now());
                 needRepository.save(need);
                 log.info("Bedürfnis {} angepasst: {} -> {}",
                         adjustment.needType(), Math.round(need.getCurrentValue() - adjustment.change()), Math.round(newValue));

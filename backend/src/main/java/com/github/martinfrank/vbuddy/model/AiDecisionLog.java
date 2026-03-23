@@ -1,6 +1,7 @@
 package com.github.martinfrank.vbuddy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class AiDecisionLog {
     private String reasoning;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = UtcDateTimeUtil.now();
 
     public AiDecisionLog() {
     }

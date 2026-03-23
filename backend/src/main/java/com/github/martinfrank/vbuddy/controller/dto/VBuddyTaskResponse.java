@@ -13,6 +13,7 @@ public record VBuddyTaskResponse(
         LocalDateTime startTime,
         int durationMinutes,
         TaskStatus status,
+        String sourceUrl,
         LocalDateTime createdAt
 ) {
     public static VBuddyTaskResponse from(VBuddyTask task) {
@@ -24,6 +25,7 @@ public record VBuddyTaskResponse(
                 task.getStartTime(),
                 task.getDurationMinutes(),
                 task.getStatus(),
+                task.getSourceUrl(),
                 task.getCreatedAt()
         );
     }

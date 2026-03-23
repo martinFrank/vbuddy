@@ -93,6 +93,7 @@ export interface VBuddyTask {
   startTime: string;
   durationMinutes: number;
   status: string;
+  sourceUrl: string | null;
   createdAt: string;
 }
 

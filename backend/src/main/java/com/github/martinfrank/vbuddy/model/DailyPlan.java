@@ -1,6 +1,7 @@
 package com.github.martinfrank.vbuddy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -25,7 +26,7 @@ public class DailyPlan {
     private LocalDate planDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = UtcDateTimeUtil.now();
 
     @OneToMany(mappedBy = "dailyPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("startTime ASC")

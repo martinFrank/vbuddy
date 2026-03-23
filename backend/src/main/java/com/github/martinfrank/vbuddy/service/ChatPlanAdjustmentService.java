@@ -4,6 +4,7 @@ import com.github.martinfrank.vbuddy.ai.ChatPlanAnalysisAiService;
 import com.github.martinfrank.vbuddy.ai.PlanAdjustmentAnalysis;
 import com.github.martinfrank.vbuddy.ai.TaskAdjustment;
 import com.github.martinfrank.vbuddy.model.*;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import com.github.martinfrank.vbuddy.repository.AiDecisionLogRepository;
 import com.github.martinfrank.vbuddy.repository.ChatMessageRepository;
 import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
@@ -75,7 +76,7 @@ public class ChatPlanAdjustmentService {
 
         PlanAdjustmentAnalysis analysis;
         try {
-            String currentTime = LocalDateTime.now().format(FORMATTER);
+            String currentTime = UtcDateTimeUtil.now().format(FORMATTER);
             analysis = chatPlanAnalysisAiService.analyzeChatForPlanAdjustment(
                     currentTime,
                     buddy.getPersonality(),

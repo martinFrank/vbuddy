@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,7 +34,7 @@ class SearxngSearchServiceIntegrationTest {
 
     @Test
     void searchLocalActivities_returnsResults() {
-        List<SearchResult> results = searchService.searchLocalActivities("Nürnberg", LocalDate.now());
+        List<SearchResult> results = searchService.searchLocalActivities("Nürnberg", UtcDateTimeUtil.today());
 
         assertThat(results).isNotNull().isNotEmpty();
         assertThat(results.size()).isLessThanOrEqualTo(MAX_RESULTS);
@@ -45,7 +47,7 @@ class SearxngSearchServiceIntegrationTest {
 
     @Test
     void searchLocalActivities_resultsHaveSnippets() {
-        List<SearchResult> results = searchService.searchLocalActivities("München", LocalDate.now());
+        List<SearchResult> results = searchService.searchLocalActivities("München", UtcDateTimeUtil.today());
 
         results.forEach(System.out::println);
 
@@ -111,7 +113,7 @@ class SearxngSearchServiceIntegrationTest {
 
     @Test
     void formatResultsAsText_producesReadableOutput() {
-        List<SearchResult> results = searchService.searchLocalActivities("Nürnberg", LocalDate.now());
+        List<SearchResult> results = searchService.searchLocalActivities("Nürnberg", UtcDateTimeUtil.today());
 
         String formatted = searchService.formatResultsAsText(results);
 
@@ -134,7 +136,7 @@ class SearxngSearchServiceIntegrationTest {
                 false
         );
 
-        assertThat(disabled.searchLocalActivities("Nürnberg", LocalDate.now())).isEmpty();
+        assertThat(disabled.searchLocalActivities("Nürnberg", UtcDateTimeUtil.today())).isEmpty();
         assertThat(disabled.searchLocalBusinesses("Nürnberg")).isEmpty();
         assertThat(disabled.searchImages("test", 3)).isEmpty();
     }

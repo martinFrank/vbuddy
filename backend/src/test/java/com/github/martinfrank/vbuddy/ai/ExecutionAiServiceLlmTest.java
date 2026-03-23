@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
@@ -25,7 +27,7 @@ class ExecutionAiServiceLlmTest {
 
     @Test
     void executeTask_returnsValidBlogAndNeedAdjustments() {
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String currentTime = UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
         TaskExecutionResult result = executionAiService.executeTask(
                 currentTime,
@@ -47,7 +49,7 @@ class ExecutionAiServiceLlmTest {
 
     @Test
     void executeTask_needAdjustmentsAreValid() {
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String currentTime = UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
         TaskExecutionResult result = executionAiService.executeTask(
                 currentTime,
@@ -70,7 +72,7 @@ class ExecutionAiServiceLlmTest {
 
     @Test
     void executeTask_cookingReducesHunger() {
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String currentTime = UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
         TaskExecutionResult result = executionAiService.executeTask(
                 currentTime,
@@ -91,7 +93,7 @@ class ExecutionAiServiceLlmTest {
 
     @Test
     void executeTask_blogIsWrittenInFirstPerson() {
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String currentTime = UtcDateTimeUtil.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
         TaskExecutionResult result = executionAiService.executeTask(
                 currentTime,

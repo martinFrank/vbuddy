@@ -1,6 +1,7 @@
 package com.github.martinfrank.vbuddy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -33,12 +34,15 @@ public class VBuddyTask {
     @Column(name = "duration_minutes", nullable = false)
     private int durationMinutes;
 
+    @Column(name = "source_url", length = 500)
+    private String sourceUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TaskStatus status = TaskStatus.PLANNED;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = UtcDateTimeUtil.now();
 
     public VBuddyTask() {
     }
@@ -105,6 +109,14 @@ public class VBuddyTask {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public String getSourceUrl() {
+        return sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
     }
 
     public LocalDateTime getCreatedAt() {

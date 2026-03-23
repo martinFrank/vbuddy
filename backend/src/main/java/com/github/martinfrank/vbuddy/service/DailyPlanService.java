@@ -4,6 +4,8 @@ import com.github.martinfrank.vbuddy.model.DailyPlan;
 import com.github.martinfrank.vbuddy.repository.DailyPlanRepository;
 import org.springframework.stereotype.Service;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,7 @@ public class DailyPlanService {
     }
 
     public Optional<DailyPlan> getTodayPlan(Long buddyId) {
-        return dailyPlanRepository.findByBuddyIdAndPlanDate(buddyId, LocalDate.now());
+        return dailyPlanRepository.findByBuddyIdAndPlanDate(buddyId, UtcDateTimeUtil.today());
     }
 
     // TODO: LLM-gestützte Tagesplan-Generierung

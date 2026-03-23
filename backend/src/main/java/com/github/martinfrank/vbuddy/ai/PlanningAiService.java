@@ -21,6 +21,7 @@ public interface PlanningAiService {
             - Nutze lokale Veranstaltungen und Aktivitäten aus der Websuche als Inspiration, wenn sie zum VBuddy passen
             - Nutze Geschäfte, Restaurants und Cafés aus der Websuche als konkrete Orte für Aktivitäten (z.B. Einkaufen, Essen gehen, Kaffee trinken)
             - Verwende echte Namen von Geschäften, Restaurants oder Veranstaltungen aus den Suchergebnissen, wenn sie zur Aktivität passen
+            - Wenn eine Aktivität auf einem Suchergebnis basiert, gib die URL der Quelle als sourceUrl an
             - Richte dich nach dem Wochenstundenplan des VBuddy: plane Aktivitäten passend zum aktuellen Zeitblock (z.B. keine Freizeitaktivität während der Arbeitszeit)
             - Der Stundenplan gibt den Rahmen vor, die konkreten Aktivitäten innerhalb der Zeitblöcke können variieren
             - Verwende das Datumsformat 'yyyy-MM-dd HH:mm' für Startzeiten

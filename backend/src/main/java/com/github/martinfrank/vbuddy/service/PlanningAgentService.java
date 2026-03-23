@@ -5,6 +5,7 @@ import com.github.martinfrank.vbuddy.ai.PlanningAiService;
 import com.github.martinfrank.vbuddy.ai.PlannedTask;
 import com.github.martinfrank.vbuddy.ai.PlannedTasks;
 import com.github.martinfrank.vbuddy.model.*;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import com.github.martinfrank.vbuddy.repository.AiDecisionLogRepository;
 import com.github.martinfrank.vbuddy.repository.VBuddyTaskRepository;
 import org.slf4j.Logger;
@@ -76,12 +77,12 @@ public class PlanningAgentService {
                         t.getStartTime().format(FORMATTER), t.getDurationMinutes()))
                 .collect(Collectors.joining("\n"));
 
-        String currentTime = LocalDateTime.now().format(FORMATTER);
+        String currentTime = UtcDateTimeUtil.now().format(FORMATTER);
 
-        List<SearchResult> eventResults = searxngSearchService.searchLocalActivities(
-                buddy.getCurrentLocation(), LocalDate.now());
-        List<SearchResult> businessResults = searxngSearchService.searchLocalBusinesses(
-                buddy.getCurrentLocation());
+        List<SearchResult> eventResults = searxngSearchService.fetchPageContents(
+                searxngSearchService.searchLocalActivities(buddy.getCurrentLocation(), UtcDateTimeUtil.today()));
+        List<SearchResult> businessResults = searxngSearchService.fetchPageContents(
+                searxngSearchService.searchLocalBusinesses(buddy.getCurrentLocation()));
 
         String localEventsText = searxngSearchService.formatResultsAsText(eventResults);
         String localBusinessesText = searxngSearchService.formatResultsAsText(businessResults);
@@ -93,7 +94,7 @@ public class PlanningAgentService {
                 .map(bg -> bg.getWeeklySchedule() != null ? bg.getWeeklySchedule() : "Kein Stundenplan verfügbar.")
                 .orElse("Kein Stundenplan verfügbar.");
 
-        boolean isWeekend = LocalDate.now().getDayOfWeek().getValue() >= 6;
+        boolean isWeekend = UtcDateTimeUtil.today().getDayOfWeek().getValue() >= 6;
         String dayType = isWeekend ? "Wochenende" : "Wochentag";
 
         String historicalContext;
@@ -171,7 +172,7 @@ public class PlanningAgentService {
             );
             if (enriched != null && enriched.enrichedDescription() != null && !enriched.enrichedDescription().isBlank()) {
                 log.info("Enrichment erfolgreich für Task '{}'", task.title());
-                return new PlannedTask(task.title(), enriched.enrichedDescription(), task.location(), task.startTime(), task.durationMinutes());
+                return new PlannedTask(task.title(), enriched.enrichedDescription(), task.location(), task.startTime(), task.durationMinutes(), task.sourceUrl());
             }
         } catch (Exception e) {
             log.warn("Enrichment fehlgeschlagen für Task '{}': {} — verwende Original-Beschreibung", task.title(), e.getMessage());
@@ -187,6 +188,7 @@ public class PlanningAgentService {
         task.setLocation(planned.location());
         task.setStartTime(LocalDateTime.parse(planned.startTime().trim(), FLEXIBLE_PARSER));
         task.setDurationMinutes(planned.durationMinutes());
+        task.setSourceUrl(planned.sourceUrl());
         task.setStatus(TaskStatus.PLANNED);
         return task;
     }

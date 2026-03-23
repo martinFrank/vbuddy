@@ -1,6 +1,7 @@
 package com.github.martinfrank.vbuddy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -30,7 +31,7 @@ public class BlogPost {
     private String content;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = UtcDateTimeUtil.now();
 
     public BlogPost() {
     }

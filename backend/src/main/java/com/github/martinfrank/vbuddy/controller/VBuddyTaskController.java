@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,8 +40,8 @@ public class VBuddyTaskController {
 
     @GetMapping("/timeline")
     public List<VBuddyTaskResponse> getTimeline(@PathVariable Long buddyId) {
-        LocalDateTime from = LocalDateTime.now().minusHours(8);
-        LocalDateTime to = LocalDateTime.now().plusHours(16);
+        LocalDateTime from = UtcDateTimeUtil.today().atStartOfDay();
+        LocalDateTime to = from.plusDays(1);
         return taskRepository.findByBuddyIdAndStartTimeBetweenOrderByStartTimeAsc(buddyId, from, to)
                 .stream().map(VBuddyTaskResponse::from).toList();
     }

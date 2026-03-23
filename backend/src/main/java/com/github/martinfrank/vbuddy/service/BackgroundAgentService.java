@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -77,7 +79,7 @@ public class BackgroundAgentService {
             }
 
             background.setStatus(BackgroundStatus.GENERATING);
-            background.setUpdatedAt(LocalDateTime.now());
+            background.setUpdatedAt(UtcDateTimeUtil.now());
             background = backgroundRepository.save(background);
 
             // Step 1: Planning Agent — structured data
@@ -92,7 +94,7 @@ public class BackgroundAgentService {
             }
 
             background.setStructuredData(structuredDataJson);
-            background.setUpdatedAt(LocalDateTime.now());
+            background.setUpdatedAt(UtcDateTimeUtil.now());
             backgroundRepository.save(background);
 
             logAiDecision(buddy,
@@ -106,7 +108,7 @@ public class BackgroundAgentService {
                     buddy.getPersonality(), structuredDataJson);
 
             background.setNarrativeText(enriched.narrativeText());
-            background.setUpdatedAt(LocalDateTime.now());
+            background.setUpdatedAt(UtcDateTimeUtil.now());
             backgroundRepository.save(background);
 
             logAiDecision(buddy,
@@ -147,7 +149,7 @@ public class BackgroundAgentService {
 
             background.setWeeklySchedule(enrichedScheduleJson);
             background.setStatus(BackgroundStatus.COMPLETED);
-            background.setUpdatedAt(LocalDateTime.now());
+            background.setUpdatedAt(UtcDateTimeUtil.now());
             backgroundRepository.save(background);
 
             logAiDecision(buddy,
@@ -168,7 +170,7 @@ public class BackgroundAgentService {
             log.error("Background generation failed for buddy {}", buddyId, e);
             backgroundRepository.findByBuddyId(buddyId).ifPresent(bg -> {
                 bg.setStatus(BackgroundStatus.FAILED);
-                bg.setUpdatedAt(LocalDateTime.now());
+                bg.setUpdatedAt(UtcDateTimeUtil.now());
                 backgroundRepository.save(bg);
             });
         }

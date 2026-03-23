@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.github.martinfrank.vbuddy.util.UtcDateTimeUtil;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -165,7 +167,7 @@ class ExecutionAgentServiceTest {
     @Test
     void isTaskFinished_taskStillRunning_returnsFalse() {
         VBuddyTask task = new VBuddyTask();
-        task.setStartTime(LocalDateTime.now().minusMinutes(10));
+        task.setStartTime(UtcDateTimeUtil.now().minusMinutes(10));
         task.setDurationMinutes(60);
 
         assertThat(executionAgentService.isTaskFinished(task)).isFalse();
@@ -174,7 +176,7 @@ class ExecutionAgentServiceTest {
     @Test
     void isTaskFinished_taskExpired_returnsTrue() {
         VBuddyTask task = new VBuddyTask();
-        task.setStartTime(LocalDateTime.now().minusMinutes(120));
+        task.setStartTime(UtcDateTimeUtil.now().minusMinutes(120));
         task.setDurationMinutes(60);
 
         assertThat(executionAgentService.isTaskFinished(task)).isTrue();
@@ -203,7 +205,7 @@ class ExecutionAgentServiceTest {
         task.setDescription("Test Beschreibung");
         task.setLocation("Zu Hause");
         task.setDurationMinutes(30);
-        task.setStartTime(LocalDateTime.now().minusMinutes(5));
+        task.setStartTime(UtcDateTimeUtil.now().minusMinutes(5));
         Buddy buddy = createBuddy(1L);
         task.setBuddy(buddy);
         return task;

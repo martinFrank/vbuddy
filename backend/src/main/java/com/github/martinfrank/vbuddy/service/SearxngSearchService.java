@@ -1,5 +1,7 @@
 package com.github.martinfrank.vbuddy.service;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -131,6 +133,38 @@ public class SearxngSearchService {
         }
     }
 
+    public List<SearchResult> fetchPageContents(List<SearchResult> results) {
+        return results.stream()
+                .map(this::fetchSinglePageContent)
+                .toList();
+    }
+
+    private SearchResult fetchSinglePageContent(SearchResult result) {
+        try {
+            log.info("Lade Seiteninhalt von: {}", result.url());
+            Document doc = Jsoup.connect(result.url())
+                    .userAgent("VBuddy/1.0")
+                    .timeout(10_000)
+                    .get();
+
+            doc.select("script, style, nav, footer, header, aside, iframe, noscript, .cookie-banner, .advertisement").remove();
+
+            String text = doc.body() != null ? doc.body().text() : "";
+
+            if (text.length() > 2000) {
+                text = text.substring(0, 2000) + "...";
+            }
+
+            if (!text.isBlank()) {
+                log.info("Seiteninhalt geladen von {} ({} Zeichen)", result.url(), text.length());
+                return result.withPageContent(text);
+            }
+        } catch (Exception e) {
+            log.warn("Seiteninhalt konnte nicht geladen werden von {}: {}", result.url(), e.getMessage());
+        }
+        return result;
+    }
+
     public String formatResultsAsText(List<SearchResult> results) {
         if (results.isEmpty()) {
             return "Keine Ergebnisse gefunden.";
@@ -140,6 +174,9 @@ public class SearxngSearchService {
             SearchResult r = results.get(i);
             sb.append(String.format("%d. %s\n   %s\n   Quelle: %s\n",
                     i + 1, r.title(), r.snippet() != null ? r.snippet() : "", r.url()));
+            if (r.pageContent() != null && !r.pageContent().isBlank()) {
+                sb.append(String.format("   Seiteninhalt: %s\n", r.pageContent()));
+            }
         }
         return sb.toString().trim();
     }
