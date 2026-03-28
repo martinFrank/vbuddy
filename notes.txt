@@ -5,3 +5,7 @@ So führst du die Tests aus
   # NUR die LLM-Tests ausführen (Ollama muss laufen)                                                                       mvn test -Dgroups=llm -DexcludedGroups=
                                                                                                                            # Einzelne Testklasse
   mvn test -Dgroups=llm -DexcludedGroups= -Dtest=PlanningAiServiceLlmTest   
+
+
+  https://markdowntoword.io/tools/markdown-to-pdf
+  
